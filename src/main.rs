@@ -85,8 +85,8 @@ impl Board {
         board
     }
 
-    fn print_board(board: &Self) {
-        for row in &board.fields {
+    fn print_board(&self) {
+        for row in &self.fields {
             for cell in row {
                 print!("{} ", cell.to_string());
             }
@@ -94,34 +94,34 @@ impl Board {
         }
     }
 
-    fn move_is_valid(board: &Self, move_coords: &Loc) -> bool {
-        board.fields[move_coords.row][move_coords.col] == Field::Empty
+    fn move_is_valid(&self, move_coords: &Loc) -> bool {
+        self.fields[move_coords.row][move_coords.col] == Field::Empty
     }
 
-    fn play(board: &mut Self, current_move: &Move) {
+    fn play(&mut self, current_move: &Move) {
         match current_move.player {
             Player::Black => {
                 println!("Black made a move!\n");
-                board.fields[current_move.coords.row][current_move.coords.col] = Field::Black;
+                self.fields[current_move.coords.row][current_move.coords.col] = Field::Black;
             }
             Player::White => {
                 println!("White made a move!\n");
-                board.fields[current_move.coords.row][current_move.coords.col] = Field::White;
+                self.fields[current_move.coords.row][current_move.coords.col] = Field::White;
             }
         }
     }
+
+    // fn group_stones(&self, coords: Loc, color: Field, stone_groups: &mut Vec<Vec<Loc>>) {
+    //     let mut current_group: Vec<Loc> = vec![];
+    //     let current_color = &self.fields[coords.row][coords.col];
+    //     flood_fill(self, coords, &color, current_color, &mut current_group);
+    //     stone_groups.push(current_group);
+    // }
 
     // fn count_liberties(stone_from_group_coord: &Loc) {}
 
     // fn remove_group(stone_from_group_coord: &Loc) {}
 }
-
-// fn group_stones(board: &Board, coords: Loc, color: Field, stone_groups: &mut Vec<Vec<Loc>>) {
-//     let mut current_group: Vec<Loc> = vec![];
-//     let current_color = &board.fields[coords.row][coords.col];
-//     flood_fill(board, coords, &color, current_color, &mut current_group);
-//     stone_groups.push(current_group);
-// }
 
 // fn flood_fill(
 //     board: &Board,
@@ -131,7 +131,7 @@ impl Board {
 //     stone_groups: &mut Vec<Loc>,
 // ) {
 //     // Check if out of bounds
-//     if coords.row >= board.fields.len() || coords.col >= board.fields[0].len() {
+//     if board.fields[coords.row][coords.col] == Field::Invalid {
 //         return;
 //     }
 //     // Check if we're not our connected stone position
@@ -182,9 +182,9 @@ fn main() {
         player: Player::White,
         coords: Loc { row: 0, col: 0 },
     };
-    // let mut stone_groups = vec![];
+
     let mut moves_left = 10;
-    Board::print_board(&board);
+    board.print_board();
 
     while moves_left > 0 {
         let row = rng.gen_range(0..7);
@@ -192,7 +192,7 @@ fn main() {
         let current_move_coords = Loc { row, col };
         println!();
 
-        if Board::move_is_valid(&board, &current_move_coords) {
+        if board.move_is_valid(&current_move_coords) {
             current_move = Move {
                 player: match current_move.player {
                     Player::Black => Player::White,
@@ -200,8 +200,8 @@ fn main() {
                 },
                 coords: current_move_coords,
             };
-            Board::play(&mut board, &current_move);
-            Board::print_board(&board);
+            board.play(&current_move);
+            board.print_board();
 
             // // After making a move, identify groups of stones
             // let current_color = match current_move.player {
@@ -209,12 +209,7 @@ fn main() {
             //     Player::White => Field::White,
             // };
 
-            // group_stones(
-            //     &board,
-            //     current_move.coords,
-            //     current_color,
-            //     &mut stone_groups,
-            // );
+            // board.group_stones(current_move.coords, current_color, &mut stone_groups);
 
             moves_left -= 1;
         } else {
@@ -234,5 +229,5 @@ fn main() {
     //     );
     // }
     println!("\nF I N A L  B O A R D:\n");
-    Board::print_board(&board);
+    board.print_board();
 }
