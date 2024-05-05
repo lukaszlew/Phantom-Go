@@ -1,6 +1,6 @@
 use rand::Rng;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Color {
     White,
     Black,
@@ -25,11 +25,12 @@ enum Player {
     Black,
 }
 
+#[derive(Clone, Copy)]
 struct Loc {
     row: usize,
     col: usize,
 }
-
+#[allow(dead_code)]
 impl Loc {
     fn up(&self) -> Self {
         Loc {
