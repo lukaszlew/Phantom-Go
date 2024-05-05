@@ -1,20 +1,20 @@
 use rand::Rng;
 
 #[derive(Debug, Clone, PartialEq)]
-enum Field {
+enum Color {
     White,
     Black,
     Empty,
     Invalid,
 }
 
-impl Field {
+impl Color {
     fn to_string(&self) -> String {
         match &self {
-            Field::Empty => ".".into(),
-            Field::White => "O".into(),
-            Field::Black => "#".into(),
-            Field::Invalid => "/".into(),
+            Color::Empty => ".".into(),
+            Color::White => "O".into(),
+            Color::Black => "#".into(),
+            Color::Invalid => "/".into(),
         }
     }
 }
@@ -63,24 +63,24 @@ struct Move {
 }
 
 struct Board {
-    fields: Vec<Vec<Field>>,
+    fields: Vec<Vec<Color>>,
 }
 
 impl Board {
     fn new(rows: usize, cols: usize) -> Self {
         // Initializing an empty board
         let mut board = Board {
-            fields: vec![vec![Field::Empty; cols]; rows],
+            fields: vec![vec![Color::Empty; cols]; rows],
         };
         // Setting up sentinels in rows
         for i in 0..cols {
-            board.fields[0][i] = Field::Invalid;
-            board.fields[rows - 1][i] = Field::Invalid;
+            board.fields[0][i] = Color::Invalid;
+            board.fields[rows - 1][i] = Color::Invalid;
         }
         // Setting up sentinels in columns
         for i in 0..rows {
-            board.fields[i][0] = Field::Invalid;
-            board.fields[i][cols - 1] = Field::Invalid;
+            board.fields[i][0] = Color::Invalid;
+            board.fields[i][cols - 1] = Color::Invalid;
         }
         board
     }
@@ -95,18 +95,18 @@ impl Board {
     }
 
     fn move_is_valid(&self, move_coords: &Loc) -> bool {
-        self.fields[move_coords.row][move_coords.col] == Field::Empty
+        self.fields[move_coords.row][move_coords.col] == Color::Empty
     }
 
     fn play(&mut self, current_move: &Move) {
         match current_move.player {
             Player::Black => {
                 println!("Black made a move!\n");
-                self.fields[current_move.coords.row][current_move.coords.col] = Field::Black;
+                self.fields[current_move.coords.row][current_move.coords.col] = Color::Black;
             }
             Player::White => {
                 println!("White made a move!\n");
-                self.fields[current_move.coords.row][current_move.coords.col] = Field::White;
+                self.fields[current_move.coords.row][current_move.coords.col] = Color::White;
             }
         }
     }
