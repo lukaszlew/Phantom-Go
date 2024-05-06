@@ -112,6 +112,17 @@ impl Board {
         }
     }
 
+    fn group_stones(&self, coords: Loc) -> Vec<Loc> {
+        let mut group_stones_coordinates: Vec<Loc> = vec![];
+        let color = self.fields[coords.row][coords.col];
+        self.flood_fill(coords, color, &group_stones_coordinates);
+        group_stones_coordinates
+    }
+
+    fn flood_fill(&self, coords: Loc, color: Color, mut visited: &Vec<Loc>) {
+        unimplemented!();
+    }
+
     // fn count_liberties(stone_from_group_coord: &Loc) {}
 
     // fn remove_group(stone_from_group_coord: &Loc) {}
