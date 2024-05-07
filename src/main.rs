@@ -24,13 +24,14 @@ enum Player {
     White,
     Black,
 }
-
-#[derive(Clone, Copy)]
+// Need to derive PartialEq to compare Color in flood_fill
+// Need Debug to print groups of stones at line 172
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Loc {
     row: usize,
     col: usize,
 }
-#[allow(dead_code)]
+
 impl Loc {
     fn up(&self) -> Self {
         Loc {
@@ -115,12 +116,25 @@ impl Board {
     fn group_stones(&self, coords: Loc) -> Vec<Loc> {
         let mut group_stones_coordinates: Vec<Loc> = vec![];
         let color = self.fields[coords.row][coords.col];
-        self.flood_fill(coords, color, &group_stones_coordinates);
+        self.flood_fill(coords, color, &mut group_stones_coordinates);
         group_stones_coordinates
     }
+    // To push to visited, it's the contents of visited that need to be mutable, not variable visited itself
+    // The vector used in group_stones is mutable, because otherwise it wouldn't be possible to push to it
+    fn flood_fill(&self, coords: Loc, color: Color, visited: &mut Vec<Loc>) {
+        if visited.contains(&coords) {
+            return;
+        }
+        if self.fields[coords.row][coords.col] != color {
+            return;
+        }
 
-    fn flood_fill(&self, coords: Loc, color: Color, mut visited: &Vec<Loc>) {
-        unimplemented!();
+        visited.push(coords);
+
+        self.flood_fill(coords.up(), color, visited);
+        self.flood_fill(coords.down(), color, visited);
+        self.flood_fill(coords.left(), color, visited);
+        self.flood_fill(coords.right(), color, visited);
     }
 
     // fn count_liberties(stone_from_group_coord: &Loc) {}
@@ -155,6 +169,7 @@ fn main() {
             };
             board.play(&current_move);
             board.print_board();
+            println!("{:?}", board.group_stones(current_move_coords));
 
             moves_left -= 1;
         } else {
