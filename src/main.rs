@@ -87,6 +87,10 @@ impl Board {
         board
     }
 
+    fn get(&self, loc: Loc) -> Color {
+        self.fields[loc.row][loc.col]
+    }
+
     fn print_board(&self) {
         for row in &self.fields {
             for cell in row {
@@ -96,8 +100,8 @@ impl Board {
         }
     }
 
-    fn move_is_valid(&self, move_coords: &Loc) -> bool {
-        self.fields[move_coords.row][move_coords.col] == Color::Empty
+    fn move_is_valid(&self, loc: Loc) -> bool {
+        self.get(loc) == Color::Empty
     }
 
     fn play(&mut self, current_move: &Move) {
@@ -124,7 +128,7 @@ impl Board {
         if visited.contains(&loc) {
             return;
         }
-        if self.fields[loc.row][loc.col] != color {
+        if self.get(loc) != color {
             return;
         }
 
@@ -158,7 +162,7 @@ fn main() {
         let current_move_coords = Loc { row, col };
         println!();
 
-        if board.move_is_valid(&current_move_coords) {
+        if board.move_is_valid(current_move_coords) {
             current_move = Move {
                 player: match current_move.player {
                     Player::Black => Player::White,
