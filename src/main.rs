@@ -1,10 +1,5 @@
 use rand::Rng;
-use std::{
-    cmp::Ordering,
-    collections::{hash_set, HashSet},
-    hash,
-    io::Empty,
-};
+use std::{cmp::Ordering, collections::HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Color {
@@ -96,6 +91,10 @@ impl Board {
         self.fields[loc.row][loc.col]
     }
 
+    fn set(&mut self, loc: Loc, color: Color) {
+        self.fields[loc.row][loc.col] = color;
+    }
+
     fn print_board(&self) {
         for row in &self.fields {
             for cell in row {
@@ -167,7 +166,35 @@ impl Board {
         liberties.len()
     }
 
-    // fn remove_group(loc: &Loc) {}
+    fn remove_group(&mut self, loc: Loc) {
+        let group = self.group_stones(loc);
+        for stone in group {
+            self.set(stone, Color::Empty);
+        }
+    }
+
+    fn remove_groups_after_move(&mut self, loc: Loc) {
+        if self.get(loc.up()) != Color::Invalid {
+            if self.count_liberties(loc.up()) == 0 {
+                self.remove_group(loc.up());
+            }
+        }
+        if self.get(loc.down()) != Color::Invalid {
+            if self.count_liberties(loc.down()) == 0 {
+                self.remove_group(loc.down());
+            }
+        }
+        if self.get(loc.left()) != Color::Invalid {
+            if self.count_liberties(loc.left()) == 0 {
+                self.remove_group(loc.left());
+            }
+        }
+        if self.get(loc.right()) != Color::Invalid {
+            if self.count_liberties(loc.right()) == 0 {
+                self.remove_group(loc.right());
+            }
+        }
+    }
 }
 
 fn custom_sort(mut group: Vec<Loc>) -> Vec<Loc> {
@@ -413,6 +440,113 @@ fn run_tests(mut board: Board) {
     assert!(board.count_liberties(Loc { row: 7, col: 2 }) == 9);
     assert!(board.count_liberties(Loc { row: 7, col: 3 }) == 9);
     assert!(board.count_liberties(Loc { row: 8, col: 2 }) == 9);
+
+    board.remove_group(Loc { row: 1, col: 1 });
+    assert!(board.fields[1][1] == Color::Empty);
+    assert!(board.fields[1][2] == Color::Empty);
+    board.print_board();
+    board.remove_group(Loc { row: 5, col: 1 });
+    assert!(board.fields[4][1] == Color::Empty);
+    assert!(board.fields[5][1] == Color::Empty);
+    board.print_board();
+    board.remove_group(Loc { row: 3, col: 4 });
+    assert!(board.fields[3][3] == Color::Empty);
+    assert!(board.fields[3][4] == Color::Empty);
+    assert!(board.fields[4][3] == Color::Empty);
+    board.print_board();
+    board.remove_group(Loc { row: 6, col: 7 });
+    assert!(board.fields[4][7] == Color::Empty);
+    assert!(board.fields[5][7] == Color::Empty);
+    assert!(board.fields[6][7] == Color::Empty);
+    board.print_board();
+    board.remove_group(Loc { row: 3, col: 2 });
+    assert!(board.fields[2][2] == Color::Empty);
+    assert!(board.fields[3][1] == Color::Empty);
+    assert!(board.fields[3][2] == Color::Empty);
+    assert!(board.fields[4][2] == Color::Empty);
+    board.print_board();
+    board.remove_group(Loc { row: 9, col: 1 });
+    assert!(board.fields[9][1] == Color::Empty);
+    board.print_board();
+    board.remove_group(Loc { row: 7, col: 3 });
+    assert!(board.fields[6][2] == Color::Empty);
+    assert!(board.fields[6][3] == Color::Empty);
+    assert!(board.fields[7][2] == Color::Empty);
+    assert!(board.fields[7][3] == Color::Empty);
+    assert!(board.fields[8][2] == Color::Empty);
+    board.print_board();
+
+    let black_groups: Vec<Loc> = vec![
+        // Group 1
+        Loc { row: 1, col: 1 },
+        Loc { row: 1, col: 2 },
+        // Group 2
+        Loc { row: 4, col: 1 },
+        Loc { row: 5, col: 1 },
+        // Group 3
+        Loc { row: 3, col: 3 },
+        Loc { row: 3, col: 4 },
+        Loc { row: 4, col: 3 },
+        // Group 4
+        Loc { row: 4, col: 7 },
+        Loc { row: 5, col: 7 },
+        Loc { row: 6, col: 7 },
+        Loc { row: 7, col: 7 },
+        // Group 5
+        Loc { row: 9, col: 9 },
+    ];
+    let white_groups: Vec<Loc> = vec![
+        // Takes group 1
+        Loc { row: 2, col: 1 },
+        Loc { row: 2, col: 2 },
+        Loc { row: 1, col: 3 },
+        // Takes group 2
+        Loc { row: 3, col: 1 },
+        Loc { row: 2, col: 2 },
+        Loc { row: 5, col: 2 },
+        Loc { row: 6, col: 1 },
+        // Takes group 3
+        Loc { row: 2, col: 3 },
+        Loc { row: 2, col: 4 },
+        Loc { row: 3, col: 2 },
+        Loc { row: 3, col: 5 },
+        Loc { row: 4, col: 2 },
+        Loc { row: 4, col: 4 },
+        Loc { row: 5, col: 3 },
+        // Takes group 4
+        Loc { row: 3, col: 7 },
+        Loc { row: 4, col: 6 },
+        Loc { row: 4, col: 8 },
+        Loc { row: 5, col: 6 },
+        Loc { row: 5, col: 8 },
+        Loc { row: 6, col: 6 },
+        Loc { row: 6, col: 8 },
+        Loc { row: 7, col: 6 },
+        Loc { row: 7, col: 8 },
+        Loc { row: 8, col: 7 },
+        // Takes group 5
+        Loc { row: 8, col: 9 },
+        Loc { row: 9, col: 8 },
+    ];
+
+    for mv in black_groups {
+        board.play(&Move {
+            player: Player::Black,
+            loc: mv,
+        });
+    }
+
+    board.print_board();
+
+    for mv in white_groups {
+        board.play(&Move {
+            player: Player::White,
+            loc: mv,
+        });
+        board.remove_groups_after_move(mv);
+        println!("After trying to remove a group after {:?} move", mv);
+        board.print_board();
+    }
 }
 
 fn main() {
@@ -429,7 +563,6 @@ fn main() {
 
     let mut board = Board::new(7, 7);
     let mut moves_left = 10;
-    board.print_board();
 
     while moves_left > 0 {
         let row = rng.gen_range(0..7);
@@ -445,8 +578,6 @@ fn main() {
                 loc: current_move_coords,
             };
             board.play(&current_move);
-            println!();
-            board.print_board();
 
             moves_left -= 1;
         }
