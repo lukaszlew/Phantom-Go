@@ -61,7 +61,7 @@ impl Loc {
 
 struct Move {
     player: Player,
-    coords: Loc,
+    loc: Loc,
 }
 
 struct Board {
@@ -104,36 +104,36 @@ impl Board {
         match current_move.player {
             Player::Black => {
                 println!("Black made a move!\n");
-                self.fields[current_move.coords.row][current_move.coords.col] = Color::Black;
+                self.fields[current_move.loc.row][current_move.loc.col] = Color::Black;
             }
             Player::White => {
                 println!("White made a move!\n");
-                self.fields[current_move.coords.row][current_move.coords.col] = Color::White;
+                self.fields[current_move.loc.row][current_move.loc.col] = Color::White;
             }
         }
     }
 
-    fn group_stones(&self, coords: Loc) -> Vec<Loc> {
+    fn group_stones(&self, loc: Loc) -> Vec<Loc> {
         let mut group_stones_coordinates: Vec<Loc> = vec![];
-        let color = self.fields[coords.row][coords.col];
-        self.flood_fill(coords, color, &mut group_stones_coordinates);
+        let color = self.fields[loc.row][loc.col];
+        self.flood_fill(loc, color, &mut group_stones_coordinates);
         group_stones_coordinates
     }
 
-    fn flood_fill(&self, coords: Loc, color: Color, visited: &mut Vec<Loc>) {
-        if visited.contains(&coords) {
+    fn flood_fill(&self, loc: Loc, color: Color, visited: &mut Vec<Loc>) {
+        if visited.contains(&loc) {
             return;
         }
-        if self.fields[coords.row][coords.col] != color {
+        if self.fields[loc.row][loc.col] != color {
             return;
         }
 
-        visited.push(coords);
+        visited.push(loc);
 
-        self.flood_fill(coords.up(), color, visited);
-        self.flood_fill(coords.down(), color, visited);
-        self.flood_fill(coords.left(), color, visited);
-        self.flood_fill(coords.right(), color, visited);
+        self.flood_fill(loc.up(), color, visited);
+        self.flood_fill(loc.down(), color, visited);
+        self.flood_fill(loc.left(), color, visited);
+        self.flood_fill(loc.right(), color, visited);
     }
 
     // fn count_liberties(stone_from_group_coord: &Loc) {}
@@ -146,7 +146,7 @@ fn main() {
     let mut rng = rand::thread_rng();
     let mut current_move = Move {
         player: Player::White,
-        coords: Loc { row: 0, col: 0 },
+        loc: Loc { row: 0, col: 0 },
     };
 
     let mut moves_left = 10;
@@ -164,7 +164,7 @@ fn main() {
                     Player::Black => Player::White,
                     Player::White => Player::Black,
                 },
-                coords: current_move_coords,
+                loc: current_move_coords,
             };
             board.play(&current_move);
             board.print_board();
