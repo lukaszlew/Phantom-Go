@@ -1,4 +1,5 @@
 use rand::Rng;
+use std::cmp::Ordering;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Color {
@@ -24,9 +25,8 @@ enum Player {
     White,
     Black,
 }
-// Need to derive PartialEq to compare Color in flood_fill
-// Need Debug to print groups of stones at line 172
-#[derive(Debug, Clone, Copy, PartialEq)]
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 struct Loc {
     row: usize,
     col: usize,
@@ -119,8 +119,7 @@ impl Board {
         self.flood_fill(coords, color, &mut group_stones_coordinates);
         group_stones_coordinates
     }
-    // To push to visited, it's the contents of visited that need to be mutable, not variable visited itself
-    // The vector used in group_stones is mutable, because otherwise it wouldn't be possible to push to it
+
     fn flood_fill(&self, coords: Loc, color: Color, visited: &mut Vec<Loc>) {
         if visited.contains(&coords) {
             return;
@@ -169,7 +168,21 @@ fn main() {
             };
             board.play(&current_move);
             board.print_board();
-            println!("{:?}", board.group_stones(current_move_coords));
+
+            let group = board.group_stones(current_move_coords);
+            let mut sorted_group = board.group_stones(current_move_coords);
+            sorted_group.sort_by(|a, b| {
+                if a.row > b.row {
+                    return Ordering::Greater;
+                } else if a.row < b.row {
+                    return Ordering::Less;
+                } else if a.col > b.col {
+                    return Ordering::Greater;
+                } else {
+                    return Ordering::Less;
+                }
+            });
+            println!("Group: {:?}\nSorted\nGroup: {:?}", group, sorted_group);
 
             moves_left -= 1;
         } else {
