@@ -1,5 +1,10 @@
 use rand::Rng;
-use std::cmp::Ordering;
+use std::{
+    cmp::Ordering,
+    collections::{hash_set, HashSet},
+    hash,
+    io::Empty,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Color {
@@ -26,7 +31,7 @@ enum Player {
     Black,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Loc {
     row: usize,
     col: usize,
@@ -138,9 +143,31 @@ impl Board {
         self.flood_fill(loc.right(), color, visited);
     }
 
-    // fn count_liberties(stone_from_group_coord: &Loc) {}
+    fn count_liberties(&self, loc: Loc) -> usize {
+        let group = self.group_stones(loc);
+        let mut liberties: HashSet<Loc> = HashSet::new();
+        for stone_coords in group {
+            let color_above = self.get(stone_coords.up());
+            let color_below = self.get(stone_coords.down());
+            let color_left = self.get(stone_coords.left());
+            let color_right = self.get(stone_coords.right());
+            if color_above == Color::Empty {
+                liberties.insert(stone_coords.up());
+            }
+            if color_below == Color::Empty {
+                liberties.insert(stone_coords.down());
+            }
+            if color_left == Color::Empty {
+                liberties.insert(stone_coords.left());
+            }
+            if color_right == Color::Empty {
+                liberties.insert(stone_coords.right());
+            }
+        }
+        liberties.len()
+    }
 
-    // fn remove_group(stone_from_group_coord: &Loc) {}
+    // fn remove_group(loc: &Loc) {}
 }
 
 fn custom_sort(mut group: Vec<Loc>) -> Vec<Loc> {
@@ -365,6 +392,27 @@ fn run_tests(mut board: Board) {
                 Loc { row: 8, col: 2 }
             ]
     );
+
+    assert!(board.count_liberties(Loc { row: 1, col: 1 }) == 2);
+    assert!(board.count_liberties(Loc { row: 1, col: 2 }) == 2);
+    assert!(board.count_liberties(Loc { row: 4, col: 1 }) == 2);
+    assert!(board.count_liberties(Loc { row: 5, col: 1 }) == 2);
+    assert!(board.count_liberties(Loc { row: 3, col: 3 }) == 5);
+    assert!(board.count_liberties(Loc { row: 3, col: 4 }) == 5);
+    assert!(board.count_liberties(Loc { row: 4, col: 3 }) == 5);
+    assert!(board.count_liberties(Loc { row: 4, col: 7 }) == 8);
+    assert!(board.count_liberties(Loc { row: 5, col: 7 }) == 8);
+    assert!(board.count_liberties(Loc { row: 6, col: 7 }) == 8);
+    assert!(board.count_liberties(Loc { row: 2, col: 2 }) == 3);
+    assert!(board.count_liberties(Loc { row: 3, col: 1 }) == 3);
+    assert!(board.count_liberties(Loc { row: 3, col: 2 }) == 3);
+    assert!(board.count_liberties(Loc { row: 4, col: 2 }) == 3);
+    assert!(board.count_liberties(Loc { row: 9, col: 1 }) == 2);
+    assert!(board.count_liberties(Loc { row: 6, col: 2 }) == 9);
+    assert!(board.count_liberties(Loc { row: 6, col: 3 }) == 9);
+    assert!(board.count_liberties(Loc { row: 7, col: 2 }) == 9);
+    assert!(board.count_liberties(Loc { row: 7, col: 3 }) == 9);
+    assert!(board.count_liberties(Loc { row: 8, col: 2 }) == 9);
 }
 
 fn main() {
