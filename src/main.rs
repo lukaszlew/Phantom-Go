@@ -123,7 +123,7 @@ impl Board {
         let mut group_stones_coordinates: Vec<Loc> = vec![];
         let color = self.fields[loc.row][loc.col];
         self.flood_fill(loc, color, &mut group_stones_coordinates);
-        group_stones_coordinates
+        custom_sort(group_stones_coordinates)
     }
 
     fn flood_fill(&self, loc: Loc, color: Color, visited: &mut Vec<Loc>) {
@@ -280,12 +280,12 @@ fn run_tests(mut board: Board) {
     let group7_c = board.group_stones(Loc { row: 7, col: 2 });
     let group7_d = board.group_stones(Loc { row: 7, col: 3 });
     let group7_e = board.group_stones(Loc { row: 8, col: 2 });
-    assert!(custom_sort(group1_a) == [Loc { row: 1, col: 1 }, Loc { row: 1, col: 2 }]);
-    assert!(custom_sort(group1_b) == [Loc { row: 1, col: 1 }, Loc { row: 1, col: 2 }]);
-    assert!(custom_sort(group2_a) == [Loc { row: 4, col: 1 }, Loc { row: 5, col: 1 }]);
-    assert!(custom_sort(group2_b) == [Loc { row: 4, col: 1 }, Loc { row: 5, col: 1 }]);
+    assert!(group1_a == [Loc { row: 1, col: 1 }, Loc { row: 1, col: 2 }]);
+    assert!(group1_b == [Loc { row: 1, col: 1 }, Loc { row: 1, col: 2 }]);
+    assert!(group2_a == [Loc { row: 4, col: 1 }, Loc { row: 5, col: 1 }]);
+    assert!(group2_b == [Loc { row: 4, col: 1 }, Loc { row: 5, col: 1 }]);
     assert!(
-        custom_sort(group3_a)
+        group3_a
             == [
                 Loc { row: 3, col: 3 },
                 Loc { row: 3, col: 4 },
@@ -293,7 +293,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group3_b)
+        group3_b
             == [
                 Loc { row: 3, col: 3 },
                 Loc { row: 3, col: 4 },
@@ -301,7 +301,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group3_c)
+        group3_c
             == [
                 Loc { row: 3, col: 3 },
                 Loc { row: 3, col: 4 },
@@ -309,7 +309,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group4_a)
+        group4_a
             == [
                 Loc { row: 4, col: 7 },
                 Loc { row: 5, col: 7 },
@@ -317,7 +317,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group4_b)
+        group4_b
             == [
                 Loc { row: 4, col: 7 },
                 Loc { row: 5, col: 7 },
@@ -325,7 +325,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group4_c)
+        group4_c
             == [
                 Loc { row: 4, col: 7 },
                 Loc { row: 5, col: 7 },
@@ -333,7 +333,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group5_a)
+        group5_a
             == [
                 Loc { row: 2, col: 2 },
                 Loc { row: 3, col: 1 },
@@ -342,7 +342,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group5_b)
+        group5_b
             == [
                 Loc { row: 2, col: 2 },
                 Loc { row: 3, col: 1 },
@@ -351,7 +351,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group5_c)
+        group5_c
             == [
                 Loc { row: 2, col: 2 },
                 Loc { row: 3, col: 1 },
@@ -360,7 +360,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group5_d)
+        group5_d
             == [
                 Loc { row: 2, col: 2 },
                 Loc { row: 3, col: 1 },
@@ -368,9 +368,9 @@ fn run_tests(mut board: Board) {
                 Loc { row: 4, col: 2 }
             ]
     );
-    assert!(custom_sort(group6) == [Loc { row: 9, col: 1 }]);
+    assert!(group6 == [Loc { row: 9, col: 1 }]);
     assert!(
-        custom_sort(group7_a)
+        group7_a
             == [
                 Loc { row: 6, col: 2 },
                 Loc { row: 6, col: 3 },
@@ -380,7 +380,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group7_b)
+        group7_b
             == [
                 Loc { row: 6, col: 2 },
                 Loc { row: 6, col: 3 },
@@ -390,7 +390,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group7_c)
+        group7_c
             == [
                 Loc { row: 6, col: 2 },
                 Loc { row: 6, col: 3 },
@@ -400,7 +400,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group7_d)
+        group7_d
             == [
                 Loc { row: 6, col: 2 },
                 Loc { row: 6, col: 3 },
@@ -410,7 +410,7 @@ fn run_tests(mut board: Board) {
             ]
     );
     assert!(
-        custom_sort(group7_e)
+        group7_e
             == [
                 Loc { row: 6, col: 2 },
                 Loc { row: 6, col: 3 },
