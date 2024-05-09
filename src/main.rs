@@ -145,23 +145,17 @@ impl Board {
     fn count_liberties(&self, loc: Loc) -> usize {
         let group = self.group_stones(loc);
         let mut liberties: HashSet<Loc> = HashSet::new();
+        fn get_check_empty_insert_combo(board: &Board, loc: Loc, liberties: &mut HashSet<Loc>) {
+            let color = board.get(loc);
+            if color == Color::Empty {
+                liberties.insert(loc);
+            }
+        }
         for stone_coords in group {
-            let color_above = self.get(stone_coords.up());
-            let color_below = self.get(stone_coords.down());
-            let color_left = self.get(stone_coords.left());
-            let color_right = self.get(stone_coords.right());
-            if color_above == Color::Empty {
-                liberties.insert(stone_coords.up());
-            }
-            if color_below == Color::Empty {
-                liberties.insert(stone_coords.down());
-            }
-            if color_left == Color::Empty {
-                liberties.insert(stone_coords.left());
-            }
-            if color_right == Color::Empty {
-                liberties.insert(stone_coords.right());
-            }
+            get_check_empty_insert_combo(self, stone_coords.up(), &mut liberties);
+            get_check_empty_insert_combo(self, stone_coords.down(), &mut liberties);
+            get_check_empty_insert_combo(self, stone_coords.left(), &mut liberties);
+            get_check_empty_insert_combo(self, stone_coords.right(), &mut liberties);
         }
         liberties.len()
     }
