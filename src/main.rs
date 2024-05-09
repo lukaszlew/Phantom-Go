@@ -1,5 +1,5 @@
 use rand::Rng;
-use std::{backtrace, cmp::Ordering, collections::HashSet};
+use std::{cmp::Ordering, collections::HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Color {
@@ -64,6 +64,7 @@ struct Move {
     loc: Loc,
 }
 
+#[derive(Clone)]
 struct Board {
     fields: Vec<Vec<Color>>,
 }
@@ -104,8 +105,25 @@ impl Board {
         }
     }
 
-    fn move_is_valid(&self, loc: Loc) -> bool {
+    fn field_is_empty(&self, loc: Loc) -> bool {
         self.get(loc) == Color::Empty
+    }
+
+    fn change_player(&self, mv: &mut Move) {
+        mv.player = match mv.player {
+            Player::Black => Player::White,
+            Player::White => Player::Black,
+        }
+    }
+
+    fn move_is_valid(&self, mv: &Move) -> bool {
+        let mut potential_board = self.clone();
+        if potential_board.field_is_empty(mv.loc) {
+            potential_board.play(mv);
+        } else {
+            return false;
+        }
+        potential_board.count_liberties(mv.loc) > 0
     }
 
     fn play(&mut self, current_move: &Move) {
@@ -117,6 +135,7 @@ impl Board {
                 self.fields[current_move.loc.row][current_move.loc.col] = Color::White;
             }
         }
+        self.remove_groups_after_move(current_move.loc);
     }
 
     fn group_stones(&self, loc: Loc) -> Vec<Loc> {
@@ -526,7 +545,6 @@ fn run_tests(mut board: Board) {
             player: Player::White,
             loc: mv,
         });
-        board.remove_groups_after_move(mv);
         println!("After trying to remove a group after {:?} move", mv);
         board.print_board();
     }
@@ -540,7 +558,7 @@ fn main() {
 
     let mut rng = rand::thread_rng();
     let mut current_move = Move {
-        player: Player::White,
+        player: Player::Black,
         loc: Loc { row: 0, col: 0 },
     };
 
@@ -551,16 +569,11 @@ fn main() {
         let row = rng.gen_range(0..7);
         let col = rng.gen_range(0..7);
         let current_move_coords = Loc { row, col };
+        current_move.loc = current_move_coords;
 
-        if board.move_is_valid(current_move_coords) {
-            current_move = Move {
-                player: match current_move.player {
-                    Player::Black => Player::White,
-                    Player::White => Player::Black,
-                },
-                loc: current_move_coords,
-            };
+        if board.move_is_valid(&current_move) {
             board.play(&current_move);
+            board.change_player(&mut current_move);
 
             moves_left -= 1;
         }
