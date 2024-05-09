@@ -1,5 +1,5 @@
 use rand::Rng;
-use std::{cmp::Ordering, collections::HashSet};
+use std::{backtrace, cmp::Ordering, collections::HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Color {
@@ -168,26 +168,15 @@ impl Board {
     }
 
     fn remove_groups_after_move(&mut self, loc: Loc) {
-        if self.get(loc.up()) != Color::Invalid {
-            if self.count_liberties(loc.up()) == 0 {
-                self.remove_group(loc.up());
+        fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
+            if board.get(loc) != Color::Invalid {
+                board.remove_group(loc);
             }
         }
-        if self.get(loc.down()) != Color::Invalid {
-            if self.count_liberties(loc.down()) == 0 {
-                self.remove_group(loc.down());
-            }
-        }
-        if self.get(loc.left()) != Color::Invalid {
-            if self.count_liberties(loc.left()) == 0 {
-                self.remove_group(loc.left());
-            }
-        }
-        if self.get(loc.right()) != Color::Invalid {
-            if self.count_liberties(loc.right()) == 0 {
-                self.remove_group(loc.right());
-            }
-        }
+        get_check_invalid_remove_group_combo(self, loc.up());
+        get_check_invalid_remove_group_combo(self, loc.down());
+        get_check_invalid_remove_group_combo(self, loc.left());
+        get_check_invalid_remove_group_combo(self, loc.right());
     }
 }
 
