@@ -57,6 +57,14 @@ impl Loc {
             col: self.col + 1,
         }
     }
+    fn from_string(s: &str) -> Self {
+        let row_col: Vec<&str> = s.split(",").map(|part| part.trim()).collect();
+
+        let row = row_col[0].parse::<usize>().unwrap_or(0);
+        let col = row_col[1].parse::<usize>().unwrap_or(0);
+
+        Loc { row, col }
+    }
 }
 
 struct Move {
@@ -222,7 +230,7 @@ fn custom_sort(mut group: Vec<Loc>) -> Vec<Loc> {
 fn run_tests(mut board: Board) {
     let black_groups: Vec<Loc> = vec![
         // Group 1
-        Loc { row: 1, col: 1 },
+        Loc::from_string("1, 1"),
         Loc { row: 1, col: 2 },
         // Group 2
         Loc { row: 4, col: 1 },
@@ -586,4 +594,5 @@ fn main() {
 
     println!("\nF I N A L  B O A R D:\n");
     board.print_board();
+    println!("{:?}", Loc::from_string("1, 9"));
 }
