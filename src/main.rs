@@ -188,8 +188,13 @@ impl Board {
 
     fn remove_groups_after_move(&mut self, loc: Loc) {
         fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
-            if board.get(loc) != Color::Invalid {
-                board.remove_group(loc);
+            let color = board.get(loc);
+            let color_is_correct = color != Color::Invalid && color != Color::Empty;
+            if color_is_correct {
+                let group_liberties_is_0 = board.count_liberties(loc) == 0;
+                if group_liberties_is_0 {
+                    board.remove_group(loc);
+                }
             }
         }
         get_check_invalid_remove_group_combo(self, loc.up());
