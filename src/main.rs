@@ -67,6 +67,7 @@ impl Loc {
     }
 }
 
+#[derive(Clone)]
 struct Move {
     player: Player,
     loc: Loc,
@@ -209,6 +210,18 @@ impl Board {
         get_check_invalid_remove_group_combo(self, loc.down());
         get_check_invalid_remove_group_combo(self, loc.left());
         get_check_invalid_remove_group_combo(self, loc.right());
+    }
+
+    fn undo(mut self, moves: &mut Vec<Move>) -> Self {
+        moves.pop();
+        self = Board::new(7, 7);
+        for mv in moves {
+            self.fields[mv.loc.row][mv.loc.col] = match mv.player {
+                Player::Black => Color::Black,
+                Player::White => Color::White,
+            };
+        }
+        self
     }
 }
 
@@ -565,6 +578,7 @@ fn run_tests(mut board: Board) {
 
 fn main() {
     let board = Board::new(11, 11);
+    let mut game_record: Vec<Move> = vec![];
     println!();
     run_tests(board);
     println!("\nAll tests P A S S E D !\n");
@@ -585,14 +599,55 @@ fn main() {
         current_move.loc = current_move_coords;
 
         if board.move_is_valid(&current_move) {
+            game_record.push(current_move.clone());
             board.play(&current_move);
             board.change_player(&mut current_move);
-
+            board.print_board();
+            println!();
             moves_left -= 1;
         }
     }
 
-    println!("\nF I N A L  B O A R D:\n");
+    println!("\nF I N A L  B O A R D:\n\n");
     board.print_board();
-    println!("{:?}", Loc::from_string("1, 9"));
+    let board = board.undo(&mut game_record);
+    println!("\n1st undo:\n");
+    board.print_board();
+    let board = board.undo(&mut game_record);
+    println!("\n2nd undo:\n");
+    board.print_board();
+    let board = board.undo(&mut game_record);
+    println!("\n3rd undo:\n");
+    board.print_board();
+    let board = board.undo(&mut game_record);
+    println!("\n4th undo:\n");
+    board.print_board();
+    let board = board.undo(&mut game_record);
+    println!("\n5th undo:\n");
+    board.print_board();
+    let mut board = board.undo(&mut game_record);
+    println!("\n6th undo:\n");
+    board.print_board();
+
+    println!("\n\nContinuing after UNDOS!\n\n");
+    moves_left = 6;
+
+    while moves_left > 0 {
+        let row = rng.gen_range(0..7);
+        let col = rng.gen_range(0..7);
+        let current_move_coords = Loc { row, col };
+        current_move.loc = current_move_coords;
+
+        if board.move_is_valid(&current_move) {
+            game_record.push(current_move.clone());
+            board.play(&current_move);
+            board.change_player(&mut current_move);
+            board.print_board();
+            println!();
+            moves_left -= 1;
+        }
+    }
+
+    println!("\nF I N A L  B O A R D:\n\n");
+    board.print_board();
 }
