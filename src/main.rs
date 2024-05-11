@@ -158,15 +158,8 @@ impl Board {
         potential_board.count_liberties(mv.loc) > 0
     }
 
-    fn play(&mut self, current_move: &Move) {
-        match current_move.player {
-            Player::Black => {
-                self.fields[current_move.loc.row][current_move.loc.col] = Color::Black;
-            }
-            Player::White => {
-                self.fields[current_move.loc.row][current_move.loc.col] = Color::White;
-            }
-        }
+    fn play(&mut self, mv: &Move) {
+        self.fields[mv.loc.row][mv.loc.col] = mv.player.to_color();
         // Remove dead groups
         fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
             let color = board.get(loc);
@@ -174,10 +167,10 @@ impl Board {
                 board.remove_group(loc);
             }
         }
-        get_check_invalid_remove_group_combo(self, current_move.loc.up());
-        get_check_invalid_remove_group_combo(self, current_move.loc.down());
-        get_check_invalid_remove_group_combo(self, current_move.loc.left());
-        get_check_invalid_remove_group_combo(self, current_move.loc.right());
+        get_check_invalid_remove_group_combo(self, mv.loc.up());
+        get_check_invalid_remove_group_combo(self, mv.loc.down());
+        get_check_invalid_remove_group_combo(self, mv.loc.left());
+        get_check_invalid_remove_group_combo(self, mv.loc.right());
     }
 
     fn group_stones(&self, loc: Loc) -> Vec<Loc> {
