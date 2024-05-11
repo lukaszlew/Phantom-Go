@@ -151,7 +151,7 @@ impl Board {
         let mut group_stones_coordinates: Vec<Loc> = vec![];
         let color = self.fields[loc.row][loc.col];
         self.flood_fill(loc, color, &mut group_stones_coordinates);
-        custom_sort(group_stones_coordinates)
+        sort(group_stones_coordinates)
     }
 
     fn flood_fill(&self, loc: Loc, color: Color, visited: &mut Vec<Loc>) {
@@ -225,18 +225,8 @@ impl Board {
     }
 }
 
-fn custom_sort(mut group: Vec<Loc>) -> Vec<Loc> {
-    group.sort_by(|a, b| {
-        if a.row > b.row {
-            return Ordering::Greater;
-        } else if a.row < b.row {
-            return Ordering::Less;
-        } else if a.col > b.col {
-            return Ordering::Greater;
-        } else {
-            return Ordering::Less;
-        }
-    });
+fn sort(mut group: Vec<Loc>) -> Vec<Loc> {
+    group.sort_by(|a, b| a.row.cmp(&b.row).then(a.col.cmp(&b.col)));
     group
 }
 
