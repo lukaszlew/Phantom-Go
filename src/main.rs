@@ -1,5 +1,6 @@
 use rand::Rng;
 use std::collections::HashSet;
+use std::io;
 pub mod board_test;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -25,6 +26,15 @@ impl Color {
 enum Player {
     White,
     Black,
+}
+
+impl Player {
+    fn to_color(&self) -> Color {
+        match self {
+            Player::Black => Color::White,
+            Player::White => Color::Black,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -59,12 +69,23 @@ impl Loc {
         }
     }
     fn from_string(s: &str) -> Self {
+        let mut loc = Loc { row: 0, col: 0 };
+        // if input doesn't have a comma - definitely invalid
+        if !s.contains(",") {
+            return loc;
+        }
+
         let row_col: Vec<&str> = s.split(",").map(|part| part.trim()).collect();
+        // if has more than 1 - definitely invalid
+        if row_col.len() != 2 {
+            return loc;
+        }
 
-        let row = row_col[0].parse::<usize>().unwrap_or(0);
-        let col = row_col[1].parse::<usize>().unwrap_or(0);
+        loc.row = row_col[0].parse::<usize>().unwrap_or(0);
+        loc.col = row_col[1].parse::<usize>().unwrap_or(0);
+        println!("Inside from_string(): row: {}, col: {}", loc.row, loc.col);
 
-        Loc { row, col }
+        loc
     }
 }
 
@@ -123,6 +144,11 @@ impl Board {
     }
 
     fn move_is_valid(&self, mv: &Move) -> bool {
+        let rows = self.fields.len();
+        let cols = self.fields[0].len();
+        if mv.loc.row > rows - 1 || mv.loc.col > cols - 1 {
+            return false;
+        }
         let mut potential_board = self.clone();
         if potential_board.get(mv.loc) == Color::Empty {
             potential_board.play(mv);
@@ -144,11 +170,8 @@ impl Board {
         // Remove dead groups
         fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
             let color = board.get(loc);
-            if color != Color::Invalid && color != Color::Empty {
-                let group_liberties_is_0 = board.count_liberties(loc) == 0;
-                if group_liberties_is_0 {
-                    board.remove_group(loc);
-                }
+            if color != Color::Invalid && color != Color::Empty && board.count_liberties(loc) == 0 {
+                board.remove_group(loc);
             }
         }
         get_check_invalid_remove_group_combo(self, current_move.loc.up());
@@ -297,4 +320,37 @@ fn main() {
 
     println!("\nF I N A L  B O A R D:\n\n");
     board.print_board();
+
+    println!("\nAfter all tests have passed... Your game may begin!\n\n");
+    let mut board = Board::new(11, 11);
+    let mut current_move = Move {
+        player: Player::Black,
+        loc: Loc { row: 0, col: 0 },
+    };
+
+    loop {
+        let mut player_input: String = String::new();
+        io::stdin()
+            .read_line(&mut player_input)
+            .expect("Failed to read input");
+        let coords = Loc::from_string(&player_input);
+        let invalid_coord = Loc { row: 0, col: 0 };
+
+        if coords == invalid_coord {
+            println!("\nPut in coords in \"row_index, column_index format\" ");
+            continue;
+        }
+
+        current_move.loc = coords;
+
+        if !board.move_is_valid(&current_move) {
+            println!("\nInvalid move :c\nT R Y  A G A I N !\n");
+            continue;
+        }
+
+        println!("{:?}", current_move.loc);
+        board.play(&current_move);
+        board.change_player(&mut current_move);
+        board.print_board();
+    }
 }
