@@ -115,10 +115,6 @@ impl Board {
         }
     }
 
-    fn field_is_empty(&self, loc: Loc) -> bool {
-        self.get(loc) == Color::Empty
-    }
-
     fn change_player(&self, mv: &mut Move) {
         mv.player = match mv.player {
             Player::Black => Player::White,
@@ -128,7 +124,7 @@ impl Board {
 
     fn move_is_valid(&self, mv: &Move) -> bool {
         let mut potential_board = self.clone();
-        if potential_board.field_is_empty(mv.loc) {
+        if potential_board.get(mv.loc) == Color::Empty {
             potential_board.play(mv);
         } else {
             return false;
@@ -145,7 +141,20 @@ impl Board {
                 self.fields[current_move.loc.row][current_move.loc.col] = Color::White;
             }
         }
-        self.remove_groups_after_move(current_move.loc);
+        // Remove dead groups
+        fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
+            let color = board.get(loc);
+            if color != Color::Invalid && color != Color::Empty {
+                let group_liberties_is_0 = board.count_liberties(loc) == 0;
+                if group_liberties_is_0 {
+                    board.remove_group(loc);
+                }
+            }
+        }
+        get_check_invalid_remove_group_combo(self, current_move.loc.up());
+        get_check_invalid_remove_group_combo(self, current_move.loc.down());
+        get_check_invalid_remove_group_combo(self, current_move.loc.left());
+        get_check_invalid_remove_group_combo(self, current_move.loc.right());
     }
 
     fn group_stones(&self, loc: Loc) -> Vec<Loc> {
@@ -194,23 +203,6 @@ impl Board {
         for stone in group {
             self.set(stone, Color::Empty);
         }
-    }
-
-    fn remove_groups_after_move(&mut self, loc: Loc) {
-        fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
-            let color = board.get(loc);
-            let color_is_correct = color != Color::Invalid && color != Color::Empty;
-            if color_is_correct {
-                let group_liberties_is_0 = board.count_liberties(loc) == 0;
-                if group_liberties_is_0 {
-                    board.remove_group(loc);
-                }
-            }
-        }
-        get_check_invalid_remove_group_combo(self, loc.up());
-        get_check_invalid_remove_group_combo(self, loc.down());
-        get_check_invalid_remove_group_combo(self, loc.left());
-        get_check_invalid_remove_group_combo(self, loc.right());
     }
 
     fn undo(mut self, moves: &mut Vec<Move>) -> Self {
