@@ -19,7 +19,7 @@ impl Color {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Player {
     White,
     Black,
@@ -86,7 +86,7 @@ impl Loc {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Move {
     pub player: Player,
     pub loc: Loc,
@@ -95,6 +95,7 @@ pub struct Move {
 #[derive(Clone)]
 pub struct Board {
     pub fields: Vec<Vec<Color>>,
+    pub game_history: Vec<Move>,
 }
 
 impl Board {
@@ -102,6 +103,7 @@ impl Board {
         // Initializing an empty board
         let mut board = Board {
             fields: vec![vec![Color::Empty; cols]; rows],
+            game_history: vec![],
         };
         // Setting up sentinels in rows
         for i in 0..cols {
@@ -168,6 +170,7 @@ impl Board {
         get_check_invalid_remove_group_combo(self, mv.loc.down());
         get_check_invalid_remove_group_combo(self, mv.loc.left());
         get_check_invalid_remove_group_combo(self, mv.loc.right());
+        self.game_history.push(mv.clone());
     }
 
     pub fn group_stones(&self, loc: Loc) -> Vec<Loc> {
@@ -218,15 +221,14 @@ impl Board {
         }
     }
 
-    pub fn undo(mut self, moves: &mut Vec<Move>) -> Self {
-        moves.pop();
-        self = Board::new(7, 7);
-        for mv in moves {
-            self.fields[mv.loc.row][mv.loc.col] = match mv.player {
-                Player::Black => Color::Black,
-                Player::White => Color::White,
-            };
+    pub fn undo(mut self) -> Self {
+        if let Some(undo_loc) = self.game_history.pop() {
+            self.fields[undo_loc.loc.row][undo_loc.loc.col] = Color::Empty;
+            for mv in &self.game_history {
+                self.fields[mv.loc.row][mv.loc.col] = mv.player.to_color();
+            }
         }
+
         self
     }
 }

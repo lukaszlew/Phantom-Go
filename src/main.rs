@@ -9,7 +9,7 @@ fn main() {
     println!();
     board_test::run_tests(board);
     println!("\nAll tests P A S S E D !\n");
-
+    // include in tests: --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     let mut rng = rand::thread_rng();
     let mut current_move = board::Move {
         player: board::Player::Black,
@@ -37,22 +37,22 @@ fn main() {
 
     println!("\nF I N A L  B O A R D:\n\n");
     board.print_board();
-    let board = board.undo(&mut game_record);
+    board = board.undo();
     println!("\n1st undo:\n");
     board.print_board();
-    let board = board.undo(&mut game_record);
+    board = board.undo();
     println!("\n2nd undo:\n");
     board.print_board();
-    let board = board.undo(&mut game_record);
+    board = board.undo();
     println!("\n3rd undo:\n");
     board.print_board();
-    let board = board.undo(&mut game_record);
+    board = board.undo();
     println!("\n4th undo:\n");
     board.print_board();
-    let board = board.undo(&mut game_record);
+    board = board.undo();
     println!("\n5th undo:\n");
     board.print_board();
-    let mut board = board.undo(&mut game_record);
+    board = board.undo();
     println!("\n6th undo:\n");
     board.print_board();
 
@@ -77,7 +77,7 @@ fn main() {
 
     println!("\nF I N A L  B O A R D:\n\n");
     board.print_board();
-
+    // till here --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     println!("\nAfter all tests have passed... Your game may begin!\n\n");
     let mut board = board::Board::new(11, 11);
     let mut current_move = board::Move {
@@ -90,6 +90,16 @@ fn main() {
         io::stdin()
             .read_line(&mut player_input)
             .expect("Failed to read input");
+
+        if player_input.trim() == "undo" {
+            println!("\nInside the if statement!!! \\o/ ");
+            board = board.undo();
+            board.change_player(&mut current_move);
+            println!("{:?}", board.game_history);
+            board.print_board();
+            continue;
+        }
+
         let coords = board::Loc::from_string(&player_input);
         let invalid_coord = board::Loc { row: 0, col: 0 };
 
