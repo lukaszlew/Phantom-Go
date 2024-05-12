@@ -157,7 +157,7 @@ impl Board {
         potential_board.count_liberties(mv.loc) > 0
     }
 
-    pub fn play(&mut self, mv: &Move) {
+    fn play(&mut self, mv: &Move) {
         self.fields[mv.loc.row][mv.loc.col] = mv.player.to_color();
         // Remove dead groups
         pub fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
@@ -172,6 +172,12 @@ impl Board {
         get_check_invalid_remove_group_combo(self, mv.loc.right());
         // update game_history
         self.game_history.push(mv.clone());
+    }
+
+    pub fn play_if_move_is_valid(&mut self, mv: &Move) {
+        if self.move_is_valid(mv) {
+            self.play(mv);
+        }
     }
 
     pub fn group_stones(&self, loc: Loc) -> Vec<Loc> {

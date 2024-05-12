@@ -1,4 +1,6 @@
 use rand::Rng;
+
+use crate::board::Move;
 pub fn run_tests() {
     let mut board = crate::board::Board::new(11, 11);
 
@@ -35,14 +37,14 @@ pub fn run_tests() {
     ];
 
     for mv in black_groups {
-        board.play(&crate::board::Move {
+        board.play_if_move_is_valid(&crate::board::Move {
             player: crate::board::Player::Black,
             loc: mv,
         })
     }
 
     for mv in white_groups {
-        board.play(&crate::board::Move {
+        board.play_if_move_is_valid(&crate::board::Move {
             player: crate::board::Player::White,
             loc: mv,
         })
@@ -343,7 +345,7 @@ pub fn run_tests() {
     ];
 
     for mv in black_groups {
-        board.play(&crate::board::Move {
+        board.play_if_move_is_valid(&crate::board::Move {
             player: crate::board::Player::Black,
             loc: mv,
         });
@@ -352,7 +354,7 @@ pub fn run_tests() {
     board.print_board();
 
     for mv in white_groups {
-        board.play(&crate::board::Move {
+        board.play_if_move_is_valid(&crate::board::Move {
             player: crate::board::Player::White,
             loc: mv,
         });
@@ -376,7 +378,7 @@ pub fn run_tests() {
         current_move.loc = current_move_coords;
 
         if board.move_is_valid(&current_move) {
-            board.play(&current_move);
+            board.play_if_move_is_valid(&current_move);
             board.change_player(&mut current_move);
             board.print_board();
             println!();
@@ -415,7 +417,7 @@ pub fn run_tests() {
         current_move.loc = current_move_coords;
 
         if board.move_is_valid(&current_move) {
-            board.play(&current_move);
+            board.play_if_move_is_valid(&current_move);
             board.change_player(&mut current_move);
             board.print_board();
             println!();
@@ -428,7 +430,7 @@ pub fn run_tests() {
     println!();
 
     println!("\n\nDifficult test for undo:\n(1,1) and (2,1) stones have been captured before\n\n");
-    let mut board = crate::board::Board::new(11, 11);
+    let mut board = crate::board::Board::new(7, 5);
     let moves = [
         crate::board::Move {
             player: crate::board::Player::Black,
@@ -468,7 +470,7 @@ pub fn run_tests() {
         },
     ];
     for mv in moves {
-        board.play(&mv);
+        board.play_if_move_is_valid(&mv);
     }
     board.print_board();
     println!("\nAfter this undo, (2,1) stone should disappear and (3,1) stone appear.");
@@ -478,4 +480,92 @@ pub fn run_tests() {
     assert!(board.fields[1][1] == crate::board::Color::Empty);
     assert!(board.fields[2][1] == crate::board::Color::Empty);
     assert!(board.fields[3][1] == crate::board::Color::Black);
+
+    println!("\n\nTest for KO:");
+    let mut board = crate::board::Board::new(6, 5);
+    let moves = [
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 1, col: 1 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::White,
+            loc: crate::board::Loc { row: 2, col: 1 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 2, col: 2 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::White,
+            loc: crate::board::Loc { row: 1, col: 2 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 3, col: 1 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::White,
+            loc: crate::board::Loc { row: 3, col: 2 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 1, col: 1 },
+        },
+    ];
+    for mv in moves {
+        board.play_if_move_is_valid(&mv);
+    }
+    println!("\nBlack just captured stone at (2,1) with move at (1,1):\n");
+    board.print_board();
+    println!("\n\nWhite shouldn't be able to recapture:\n\n");
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::White,
+        loc: crate::board::Loc { row: 2, col: 1 },
+    });
+    board.print_board();
+    assert!(board.fields[2][1] == crate::board::Color::Empty);
+    assert!(board.fields[1][1] == crate::board::Color::Black);
+    println!("\n\nWhite and Black have to play elsewhere:\n\n");
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::White,
+        loc: crate::board::Loc { row: 4, col: 3 },
+    });
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::Black,
+        loc: crate::board::Loc { row: 3, col: 3 },
+    });
+    board.print_board();
+    println!("\n\nNow White can capture the KO:\n\n");
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::White,
+        loc: crate::board::Loc { row: 2, col: 1 },
+    });
+    board.print_board();
+    println!("\n\nAnd Black can't recapture White:\n\n");
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::Black,
+        loc: crate::board::Loc { row: 1, col: 1 },
+    });
+    board.print_board();
+    assert!(board.fields[1][1] == crate::board::Color::Empty);
+    assert!(board.fields[2][1] == crate::board::Color::White);
+    println!("\n\nSo They have to play elsewhere:\n\n");
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::Black,
+        loc: crate::board::Loc { row: 2, col: 3 },
+    });
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::White,
+        loc: crate::board::Loc { row: 4, col: 2 },
+    });
+    board.print_board();
+    println!("\n\nFor Black to recapture:\n\n");
+    board.play_if_move_is_valid(&crate::board::Move {
+        player: crate::board::Player::Black,
+        loc: crate::board::Loc { row: 1, col: 1 },
+    });
+    board.print_board();
+    assert!(board.fields[2][1] == crate::board::Color::Empty);
+    assert!(board.fields[1][1] == crate::board::Color::Black);
 }

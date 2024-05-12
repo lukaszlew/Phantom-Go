@@ -45,7 +45,7 @@ fn main() {
         }
 
         println!("{:?}", current_move.loc);
-        board.play(&current_move);
+        board.play_if_move_is_valid(&current_move);
         board.change_player(&mut current_move);
         board.print_board();
     }
