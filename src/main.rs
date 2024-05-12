@@ -1,83 +1,10 @@
-use rand::Rng;
 use std::io;
 pub mod board;
 pub mod board_test;
 
 fn main() {
-    let board = board::Board::new(11, 11);
-    let mut game_record: Vec<board::Move> = vec![];
-    println!();
-    board_test::run_tests(board);
+    board_test::run_tests();
     println!("\nAll tests P A S S E D !\n");
-    // include in tests: --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-    let mut rng = rand::thread_rng();
-    let mut current_move = board::Move {
-        player: board::Player::Black,
-        loc: board::Loc { row: 0, col: 0 },
-    };
-
-    let mut board = board::Board::new(7, 7);
-    let mut moves_left = 10;
-
-    while moves_left > 0 {
-        let row = rng.gen_range(0..7);
-        let col = rng.gen_range(0..7);
-        let current_move_coords = board::Loc { row, col };
-        current_move.loc = current_move_coords;
-
-        if board.move_is_valid(&current_move) {
-            game_record.push(current_move.clone());
-            board.play(&current_move);
-            board.change_player(&mut current_move);
-            board.print_board();
-            println!();
-            moves_left -= 1;
-        }
-    }
-
-    println!("\nF I N A L  B O A R D:\n\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n1st undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n2nd undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n3rd undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n4th undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n5th undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n6th undo:\n");
-    board.print_board();
-
-    println!("\n\nContinuing after UNDOS!\n\n");
-    moves_left = 6;
-
-    while moves_left > 0 {
-        let row = rng.gen_range(0..7);
-        let col = rng.gen_range(0..7);
-        let current_move_coords = board::Loc { row, col };
-        current_move.loc = current_move_coords;
-
-        if board.move_is_valid(&current_move) {
-            game_record.push(current_move.clone());
-            board.play(&current_move);
-            board.change_player(&mut current_move);
-            board.print_board();
-            println!();
-            moves_left -= 1;
-        }
-    }
-
-    println!("\nF I N A L  B O A R D:\n\n");
-    board.print_board();
-    // till here --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     println!("\nAfter all tests have passed... Your game may begin!\n\n");
     let mut board = board::Board::new(11, 11);
     let mut current_move = board::Move {

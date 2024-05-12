@@ -170,6 +170,7 @@ impl Board {
         get_check_invalid_remove_group_combo(self, mv.loc.down());
         get_check_invalid_remove_group_combo(self, mv.loc.left());
         get_check_invalid_remove_group_combo(self, mv.loc.right());
+        // update game_history
         self.game_history.push(mv.clone());
     }
 

@@ -1,4 +1,7 @@
-pub fn run_tests(mut board: crate::board::Board) {
+use rand::Rng;
+pub fn run_tests() {
+    let mut board = crate::board::Board::new(11, 11);
+
     let black_groups: Vec<crate::board::Loc> = vec![
         // Group 1
         crate::board::Loc::from_string("1, 1"),
@@ -356,4 +359,71 @@ pub fn run_tests(mut board: crate::board::Board) {
         println!("After trying to remove a group after {:?} move", mv);
         board.print_board();
     }
+
+    let mut rng = rand::thread_rng();
+    let mut current_move = crate::board::Move {
+        player: crate::board::Player::Black,
+        loc: crate::board::Loc { row: 0, col: 0 },
+    };
+
+    let mut board = crate::board::Board::new(7, 7);
+    let mut moves_left = 10;
+
+    while moves_left > 0 {
+        let row = rng.gen_range(0..7);
+        let col = rng.gen_range(0..7);
+        let current_move_coords = crate::board::Loc { row, col };
+        current_move.loc = current_move_coords;
+
+        if board.move_is_valid(&current_move) {
+            board.play(&current_move);
+            board.change_player(&mut current_move);
+            board.print_board();
+            println!();
+            moves_left -= 1;
+        }
+    }
+
+    println!("\nF I N A L  B O A R D:\n\n");
+    board.print_board();
+    board = board.undo();
+    println!("\n1st undo:\n");
+    board.print_board();
+    board = board.undo();
+    println!("\n2nd undo:\n");
+    board.print_board();
+    board = board.undo();
+    println!("\n3rd undo:\n");
+    board.print_board();
+    board = board.undo();
+    println!("\n4th undo:\n");
+    board.print_board();
+    board = board.undo();
+    println!("\n5th undo:\n");
+    board.print_board();
+    board = board.undo();
+    println!("\n6th undo:\n");
+    board.print_board();
+
+    println!("\n\nContinuing after UNDOS!\n\n");
+    moves_left = 6;
+
+    while moves_left > 0 {
+        let row = rng.gen_range(0..7);
+        let col = rng.gen_range(0..7);
+        let current_move_coords = crate::board::Loc { row, col };
+        current_move.loc = current_move_coords;
+
+        if board.move_is_valid(&current_move) {
+            board.play(&current_move);
+            board.change_player(&mut current_move);
+            board.print_board();
+            println!();
+            moves_left -= 1;
+        }
+    }
+
+    println!("\nF I N A L  B O A R D:\n\n");
+    board.print_board();
+    println!();
 }
