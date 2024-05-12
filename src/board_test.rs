@@ -426,4 +426,56 @@ pub fn run_tests() {
     println!("\nF I N A L  B O A R D:\n\n");
     board.print_board();
     println!();
+
+    println!("\n\nDifficult test for undo:\n(1,1) and (2,1) stones have been captured before\n\n");
+    let mut board = crate::board::Board::new(11, 11);
+    let moves = [
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 1, col: 1 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::White,
+            loc: crate::board::Loc { row: 1, col: 2 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 2, col: 1 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::White,
+            loc: crate::board::Loc { row: 2, col: 2 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 3, col: 2 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::White,
+            loc: crate::board::Loc { row: 3, col: 1 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 4, col: 1 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::White,
+            loc: crate::board::Loc { row: 4, col: 2 },
+        },
+        crate::board::Move {
+            player: crate::board::Player::Black,
+            loc: crate::board::Loc { row: 2, col: 1 },
+        },
+    ];
+    for mv in moves {
+        board.play(&mv);
+    }
+    board.print_board();
+    println!("\nAfter this undo, (2,1) stone should disappear and (3,1) stone appear.");
+    println!("Other stones should not appear!\n");
+    board = board.undo();
+    board.print_board();
+    assert!(board.fields[1][1] == crate::board::Color::Empty);
+    assert!(board.fields[2][1] == crate::board::Color::Empty);
+    assert!(board.fields[3][1] == crate::board::Color::Black);
 }

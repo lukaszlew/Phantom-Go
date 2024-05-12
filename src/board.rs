@@ -226,8 +226,13 @@ impl Board {
         if let Some(undo_loc) = self.game_history.pop() {
             self.fields[undo_loc.loc.row][undo_loc.loc.col] = Color::Empty;
             for mv in &self.game_history {
-                self.fields[mv.loc.row][mv.loc.col] = mv.player.to_color();
+                self.fields[mv.loc.row][mv.loc.col] = Color::Empty;
             }
+            let mut new_board = Board::new(self.fields.len(), self.fields[0].len());
+            for mv in &self.game_history {
+                new_board.play(mv);
+            }
+            self = new_board;
         }
 
         self

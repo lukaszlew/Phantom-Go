@@ -18,8 +18,10 @@ fn main() {
             .read_line(&mut player_input)
             .expect("Failed to read input");
 
-        if player_input.trim() == "undo" {
-            println!("\nInside the if statement!!! \\o/ ");
+        if player_input.trim() == "gh" {
+            println!("\n\n{:?}\n\n", board.game_history);
+        }
+        if player_input.trim() == "u" {
             board = board.undo();
             board.change_player(&mut current_move);
             println!("{:?}", board.game_history);
