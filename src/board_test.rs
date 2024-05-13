@@ -1,6 +1,5 @@
 use rand::Rng;
 
-use crate::board::Move;
 pub fn run_tests() {
     let mut board = crate::board::Board::new(11, 11);
 
@@ -364,7 +363,7 @@ pub fn run_tests() {
 
     let mut rng = rand::thread_rng();
     let mut current_move = crate::board::Move {
-        player: crate::board::Player::Black,
+        player: crate::board::Player::White,
         loc: crate::board::Loc { row: 0, col: 0 },
     };
 
@@ -429,7 +428,7 @@ pub fn run_tests() {
     board.print_board();
     println!();
 
-    println!("\n\nDifficult test for undo:\n(1,1) and (2,1) stones have been captured before\n\n");
+    println!("\nDifficult test for undo:\n\n(1,1) and (2,1) stones have been captured before\n\n");
     let mut board = crate::board::Board::new(7, 5);
     let moves = [
         crate::board::Move {
@@ -479,7 +478,7 @@ pub fn run_tests() {
     board.print_board();
     assert!(board.fields[1][1] == crate::board::Color::Empty);
     assert!(board.fields[2][1] == crate::board::Color::Empty);
-    assert!(board.fields[3][1] == crate::board::Color::Black);
+    assert!(board.fields[3][1] == crate::board::Color::White);
 
     println!("\n\nTest for KO:");
     let mut board = crate::board::Board::new(6, 5);
@@ -515,6 +514,8 @@ pub fn run_tests() {
     ];
     for mv in moves {
         board.play_if_move_is_valid(&mv);
+        board.print_board();
+        println!();
     }
     println!("\nBlack just captured stone at (2,1) with move at (1,1):\n");
     board.print_board();
@@ -526,7 +527,8 @@ pub fn run_tests() {
     board.print_board();
     assert!(board.fields[2][1] == crate::board::Color::Empty);
     assert!(board.fields[1][1] == crate::board::Color::Black);
-    println!("\n\nWhite and Black have to play elsewhere:\n\n");
+
+    println!("\n\nBlack and White have to play elsewhere:\n\n");
     board.play_if_move_is_valid(&crate::board::Move {
         player: crate::board::Player::White,
         loc: crate::board::Loc { row: 4, col: 3 },

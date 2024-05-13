@@ -24,7 +24,6 @@ fn main() {
         if player_input.trim() == "u" {
             board = board.undo();
             board.change_player(&mut current_move);
-            println!("{:?}", board.game_history);
             board.print_board();
             continue;
         }
@@ -44,8 +43,7 @@ fn main() {
             continue;
         }
 
-        println!("{:?}", current_move.loc);
-        board.play_if_move_is_valid(&current_move);
+        board.play(&current_move);
         board.change_player(&mut current_move);
         board.print_board();
     }

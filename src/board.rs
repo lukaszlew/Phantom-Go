@@ -12,8 +12,8 @@ impl Color {
     pub fn to_string(&self) -> String {
         match &self {
             Color::Empty => ".".into(),
-            Color::White => "O".into(),
-            Color::Black => "#".into(),
+            Color::White => "#".into(),
+            Color::Black => "O".into(),
             Color::Invalid => "/".into(),
         }
     }
@@ -28,8 +28,8 @@ pub enum Player {
 impl Player {
     pub fn to_color(&self) -> Color {
         match self {
-            Player::Black => Color::White,
-            Player::White => Color::Black,
+            Player::Black => Color::Black,
+            Player::White => Color::White,
         }
     }
 }
@@ -80,19 +80,18 @@ impl Loc {
 
         loc.row = row_col[0].parse::<usize>().unwrap_or(0);
         loc.col = row_col[1].parse::<usize>().unwrap_or(0);
-        println!("Inside from_string(): row: {}, col: {}", loc.row, loc.col);
 
         loc
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Move {
     pub player: Player,
     pub loc: Loc,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Board {
     pub fields: Vec<Vec<Color>>,
     pub game_history: Vec<Move>,
@@ -142,6 +141,10 @@ impl Board {
         }
     }
 
+    pub fn board_position_is_reapeated(&self, board: Board) -> bool {
+        self.fields == board.fields
+    }
+
     pub fn move_is_valid(&self, mv: &Move) -> bool {
         let rows = self.fields.len();
         let cols = self.fields[0].len();
@@ -154,10 +157,23 @@ impl Board {
         } else {
             return false;
         }
+        // you need at least 6 moves to try and retake a KO
+        if self.game_history.len() < 6 {
+            return true;
+        }
+
+        let mut gh_copy = self.game_history.clone();
+        gh_copy.pop();
+        let mut board_from_2_moves_ago = self.clone();
+        for mv in gh_copy {
+            board_from_2_moves_ago.play(&mv);
+        }
+
         potential_board.count_liberties(mv.loc) > 0
+            && !board_from_2_moves_ago.board_position_is_reapeated(potential_board)
     }
 
-    fn play(&mut self, mv: &Move) {
+    pub fn play(&mut self, mv: &Move) {
         self.fields[mv.loc.row][mv.loc.col] = mv.player.to_color();
         // Remove dead groups
         pub fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
@@ -234,11 +250,11 @@ impl Board {
             for mv in &self.game_history {
                 self.fields[mv.loc.row][mv.loc.col] = Color::Empty;
             }
-            let mut new_board = Board::new(self.fields.len(), self.fields[0].len());
+            let mut board_from_2_moves_ago = Board::new(self.fields.len(), self.fields[0].len());
             for mv in &self.game_history {
-                new_board.play(mv);
+                board_from_2_moves_ago.play(mv);
             }
-            self = new_board;
+            self = board_from_2_moves_ago;
         }
 
         self
