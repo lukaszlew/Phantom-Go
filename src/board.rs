@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, io::Empty};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Color {
@@ -164,8 +164,8 @@ impl Board {
         for mv in gh_copy {
             board_from_2_moves_ago.play(&mv);
         }
-
-        potential_board.count_liberties(mv.loc) > 0
+        // Check if the group has been removed after the move - if it was, it was a suidical move
+        potential_board.fields[mv.loc.row][mv.loc.col] != Color::Empty
             && !board_from_2_moves_ago.board_position_is_reapeated(potential_board)
     }
 
