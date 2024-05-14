@@ -157,10 +157,6 @@ impl Board {
         } else {
             return false;
         }
-        // you need at least 6 moves to try and retake a KO
-        if self.game_history.len() < 6 {
-            return true;
-        }
 
         let mut gh_copy = self.game_history.clone();
         gh_copy.pop();
@@ -250,11 +246,11 @@ impl Board {
             for mv in &self.game_history {
                 self.fields[mv.loc.row][mv.loc.col] = Color::Empty;
             }
-            let mut board_from_2_moves_ago = Board::new(self.fields.len(), self.fields[0].len());
+            let mut board_after_undo = Board::new(self.fields.len(), self.fields[0].len());
             for mv in &self.game_history {
-                board_from_2_moves_ago.play(mv);
+                board_after_undo.play(mv);
             }
-            self = board_from_2_moves_ago;
+            self = board_after_undo;
         }
 
         self
