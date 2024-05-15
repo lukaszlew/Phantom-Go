@@ -480,12 +480,12 @@ pub fn run_tests() {
     assert!(board.fields[2][1] == crate::board::Color::Empty);
     assert!(board.fields[3][1] == crate::board::Color::White);
 
-    println!("\n\nTest for KO:");
+    println!("\n\nTest for KO:\n");
     let mut board = crate::board::Board::new(6, 5);
     let moves = [
         crate::board::Move {
             player: crate::board::Player::Black,
-            loc: crate::board::Loc { row: 1, col: 1 },
+            loc: crate::board::Loc { row: 3, col: 1 },
         },
         crate::board::Move {
             player: crate::board::Player::White,
@@ -501,14 +501,6 @@ pub fn run_tests() {
         },
         crate::board::Move {
             player: crate::board::Player::Black,
-            loc: crate::board::Loc { row: 3, col: 1 },
-        },
-        crate::board::Move {
-            player: crate::board::Player::White,
-            loc: crate::board::Loc { row: 3, col: 2 },
-        },
-        crate::board::Move {
-            player: crate::board::Player::Black,
             loc: crate::board::Loc { row: 1, col: 1 },
         },
     ];
@@ -517,9 +509,9 @@ pub fn run_tests() {
         board.print_board();
         println!();
     }
-    println!("\nBlack just captured stone at (2,1) with move at (1,1):\n");
+    println!("Black just captured the stone at (2,1) with the move at (1,1):\n");
     board.print_board();
-    println!("\n\nWhite shouldn't be able to recapture:\n\n");
+    println!("\n\nWhite tries to play, but shouldn't be able to recapture:\n\n");
     board.play_if_move_is_valid(&crate::board::Move {
         player: crate::board::Player::White,
         loc: crate::board::Loc { row: 2, col: 1 },
@@ -544,7 +536,7 @@ pub fn run_tests() {
         loc: crate::board::Loc { row: 2, col: 1 },
     });
     board.print_board();
-    println!("\n\nAnd Black can't recapture White:\n\n");
+    println!("\n\nBlack tries to capture, but can't:\n\n");
     board.play_if_move_is_valid(&crate::board::Move {
         player: crate::board::Player::Black,
         loc: crate::board::Loc { row: 1, col: 1 },
@@ -562,7 +554,7 @@ pub fn run_tests() {
         loc: crate::board::Loc { row: 4, col: 2 },
     });
     board.print_board();
-    println!("\n\nFor Black to recapture:\n\n");
+    println!("\n\nFor Black to be able to recapture:\n\n");
     board.play_if_move_is_valid(&crate::board::Move {
         player: crate::board::Player::Black,
         loc: crate::board::Loc { row: 1, col: 1 },

@@ -83,6 +83,13 @@ impl Loc {
 
         loc
     }
+
+    fn coords(&self, rows: usize) -> String {
+        let col = "ABCDEFGHJKLMNOPQRST";
+        let row = rows - self.row;
+        let col = col.chars().nth(self.col).unwrap();
+        return format!("{}{}", col, row);
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
