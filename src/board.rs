@@ -1,4 +1,4 @@
-use std::{collections::HashSet, io::Empty};
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Color {
@@ -96,6 +96,15 @@ impl Loc {
 pub struct Move {
     pub player: Player,
     pub loc: Loc,
+}
+
+impl Move {
+    pub fn pass(&mut self, black_pass: &mut bool, white_pass: &mut bool) {
+        match self.player {
+            Player::Black => *black_pass = true,
+            Player::White => *white_pass = true,
+        }
+    }
 }
 
 #[derive(Clone, PartialEq)]
