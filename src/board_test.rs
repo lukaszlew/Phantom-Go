@@ -544,4 +544,22 @@ pub fn run_tests() {
     board.print_board();
     assert!(board.fields[2][1] == Color::Empty);
     assert!(board.fields[1][1] == Color::Black);
+
+    println!("\n\nTests for passing:\n");
+    let mut black_pass = false;
+    let mut white_pass = false;
+    let mut mv = Move {
+        player: Player::Black,
+        loc: Loc::from_string("3,3"),
+    };
+    assert!(black_pass == false);
+    assert!(white_pass == false);
+    mv.pass(&mut black_pass, &mut white_pass);
+    println!("{:?} {:?}", black_pass, white_pass);
+    assert!(black_pass == true);
+    assert!(white_pass == false);
+    mv.player = Player::White;
+    mv.pass(&mut black_pass, &mut white_pass);
+    assert!(black_pass == true);
+    assert!(white_pass == true);
 }

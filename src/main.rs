@@ -4,7 +4,7 @@ pub mod board;
 pub mod board_test;
 
 fn main() {
-    // board_test::run_tests();
+    board_test::run_tests();
     println!("\nAll tests P A S S E D !\n");
     println!("\nAfter all tests have passed... Your game may begin!\n\n");
     let mut board = board::Board::new(11, 11);
@@ -21,7 +21,10 @@ fn main() {
             .read_line(&mut player_input)
             .expect("Failed to read input");
 
-        if player_input.trim() == "pass" {
+        if player_input.trim() == "q" {
+            println!("\nQuit game!\n");
+            break;
+        } else if player_input.trim() == "pass" {
             current_move.pass(&mut black_pass, &mut white_pass);
             if black_pass && white_pass {
                 println!("Game ended!");

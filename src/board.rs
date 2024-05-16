@@ -99,7 +99,7 @@ pub struct Move {
 }
 
 impl Move {
-    pub fn pass(&mut self, black_pass: &mut bool, white_pass: &mut bool) {
+    pub fn pass(&self, black_pass: &mut bool, white_pass: &mut bool) {
         match self.player {
             Player::Black => *black_pass = true,
             Player::White => *white_pass = true,
