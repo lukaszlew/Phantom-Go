@@ -99,10 +99,22 @@ pub struct Move {
 }
 
 impl Move {
-    pub fn pass(&self, black_pass: &mut bool, white_pass: &mut bool) {
+    pub fn pass(
+        &self,
+        black_pass: &mut bool,
+        black_pass_cnt: &mut usize,
+        white_pass: &mut bool,
+        white_pass_cnt: &mut usize,
+    ) {
         match self.player {
-            Player::Black => *black_pass = true,
-            Player::White => *white_pass = true,
+            Player::Black => {
+                *black_pass = true;
+                *black_pass_cnt += 1;
+            }
+            Player::White => {
+                *white_pass = true;
+                *white_pass_cnt += 1;
+            }
         }
     }
 }
@@ -148,6 +160,21 @@ impl Board {
             }
             println!();
         }
+    }
+
+    pub fn count_stones(&self) -> (usize, usize) {
+        let mut black: usize = 0;
+        let mut white: usize = 0;
+        for row in &self.fields {
+            for cell in row {
+                if *cell == Color::White {
+                    white += 1;
+                } else if *cell == Color::Black {
+                    black += 1;
+                }
+            }
+        }
+        (black, white)
     }
 
     pub fn change_player(&self, mv: &mut Move) {

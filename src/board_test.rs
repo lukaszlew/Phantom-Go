@@ -554,12 +554,11 @@ pub fn run_tests() {
     };
     assert!(black_pass == false);
     assert!(white_pass == false);
-    mv.pass(&mut black_pass, &mut white_pass);
-    println!("{:?} {:?}", black_pass, white_pass);
+    mv.pass(&mut black_pass, &mut 0, &mut white_pass, &mut 0);
     assert!(black_pass == true);
     assert!(white_pass == false);
     mv.player = Player::White;
-    mv.pass(&mut black_pass, &mut white_pass);
+    mv.pass(&mut black_pass, &mut 0, &mut white_pass, &mut 0);
     assert!(black_pass == true);
     assert!(white_pass == true);
 }
