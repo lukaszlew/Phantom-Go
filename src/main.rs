@@ -1,5 +1,7 @@
 use std::io;
 
+use crate::board::Player;
+
 pub mod board;
 pub mod board_test;
 
@@ -34,6 +36,7 @@ fn main() {
                 &mut white_pass,
                 &mut white_pass_counter,
             );
+            board.print_captures(black_pass_counter, white_pass_counter);
             board.print_board();
             if black_pass && white_pass {
                 println!("Game ended!");
@@ -43,9 +46,19 @@ fn main() {
             continue;
         } else if player_input.trim() == "gh" {
             println!("\n\n{:?}\n\n", board.game_history);
-        } else if player_input.trim() == "u" {
+        } else if player_input.trim() == "u" && board.game_history.len() != 0 {
+            if black_pass || white_pass {
+                match current_move.player {
+                    Player::Black => white_pass_counter -= 1,
+                    Player::White => black_pass_counter -= 1,
+                }
+                board.change_player(&mut current_move);
+                board.print_board();
+                continue;
+            }
             board = board.undo();
             board.change_player(&mut current_move);
+            board.print_captures(black_pass_counter, white_pass_counter);
             board.print_board();
             continue;
         } else {
@@ -69,26 +82,7 @@ fn main() {
         }
 
         board.play(&current_move);
-        let number_of_moves: usize =
-            board.game_history.len() + black_pass_counter + white_pass_counter;
-        let expected_black_stones: usize =
-            number_of_moves / 2 + number_of_moves % 2 - black_pass_counter;
-        let expected_white_stones: usize = number_of_moves / 2 - white_pass_counter;
-        let (black_stones, white_stones) = board.count_stones();
-        println!(
-            "\nMoves: {:?}\nBlack passes: {:?}, white passes: {:?}",
-            number_of_moves, black_pass_counter, white_pass_counter
-        );
-        println!(
-            "\nExpected black stones: {:?}, black stones: {:?}\nExpected white stones: {:?}, white stones: {:?}",
-             expected_black_stones, black_stones, expected_white_stones, white_stones
-        );
-        let black_captures = expected_white_stones - white_stones;
-        let white_captures = expected_black_stones - black_stones;
-        println!(
-            "Black's points from captures: {:?}, white's points from captures: {:?}\n",
-            black_captures, white_captures
-        );
+        board.print_captures(black_pass_counter, white_pass_counter);
         board.change_player(&mut current_move);
         board.print_board();
     }

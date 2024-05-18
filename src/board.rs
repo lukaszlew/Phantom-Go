@@ -162,7 +162,7 @@ impl Board {
         }
     }
 
-    pub fn count_stones(&self) -> (usize, usize) {
+    fn count_stones(&self) -> (usize, usize) {
         let mut black: usize = 0;
         let mut white: usize = 0;
         for row in &self.fields {
@@ -175,6 +175,29 @@ impl Board {
             }
         }
         (black, white)
+    }
+
+    pub fn print_captures(&self, black_pass_counter: usize, white_pass_counter: usize) {
+        let number_of_moves: usize =
+            self.game_history.len() + black_pass_counter + white_pass_counter;
+        let expected_black_stones: usize =
+            number_of_moves / 2 + number_of_moves % 2 - black_pass_counter;
+        let expected_white_stones: usize = number_of_moves / 2 - white_pass_counter;
+        let (black_stones, white_stones) = self.count_stones();
+        println!(
+            "\nMoves: {:?}\nBlack passes: {:?}, white passes: {:?}",
+            number_of_moves, black_pass_counter, white_pass_counter
+        );
+        println!(
+            "\nExpected black stones: {:?}, black stones: {:?}\nExpected white stones: {:?}, white stones: {:?}",
+             expected_black_stones, black_stones, expected_white_stones, white_stones
+        );
+        let black_captures = expected_white_stones - white_stones;
+        let white_captures = expected_black_stones - black_stones;
+        println!(
+            "Black captured {:?} stones,\nwhite captured {:?} stones\n",
+            black_captures, white_captures
+        );
     }
 
     pub fn change_player(&self, mv: &mut Move) {
