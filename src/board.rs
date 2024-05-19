@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
     White,
     Black,
@@ -177,7 +177,11 @@ impl Board {
         (black, white)
     }
 
-    pub fn print_captures(&self, black_pass_counter: usize, white_pass_counter: usize) {
+    pub fn calculate_captures(
+        &self,
+        black_pass_counter: usize,
+        white_pass_counter: usize,
+    ) -> (usize, usize) {
         let number_of_moves: usize =
             self.game_history.len() + black_pass_counter + white_pass_counter;
         let expected_black_stones: usize =
@@ -198,6 +202,68 @@ impl Board {
             "Black captured {:?} stones,\nwhite captured {:?} stones\n",
             black_captures, white_captures
         );
+        (black_captures, white_captures)
+    }
+    // Grouping empty "islands" and checking bordering Colors to decide which Color the points belong
+    pub fn count_board_points(&self) -> (usize, usize) {
+        let mut white_points: usize = 0;
+        let mut black_points: usize = 0;
+        let mut groups_of_potential_points: HashSet<Vec<Loc>> = HashSet::new();
+        // Populating the HashSet of Empty "islands"
+        for (r, row) in self.fields.iter().enumerate() {
+            for (c, cell) in row.iter().enumerate() {
+                if *cell == Color::Empty {
+                    if !groups_of_potential_points
+                        .iter()
+                        .any(|group_of_empty| group_of_empty.contains(&Loc { row: r, col: c }))
+                    {
+                        groups_of_potential_points
+                            .insert(self.group_stones(Loc { row: r, col: c }));
+                    }
+                }
+            }
+        }
+
+        // Checking borders for each "island"
+        fn check_bordering_colors(island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
+            let mut bordering_colors: HashSet<Color> = HashSet::new();
+            for cell in island {
+                bordering_colors.insert(board.get(cell.up()));
+                bordering_colors.insert(board.get(cell.down()));
+                bordering_colors.insert(board.get(cell.left()));
+                bordering_colors.insert(board.get(cell.right()));
+            }
+            bordering_colors
+        }
+
+        for potential_points in groups_of_potential_points {
+            println!("Points in question: {:?}", potential_points);
+            let bordering_colors = check_bordering_colors(&potential_points, self);
+            if bordering_colors.contains(&Color::Black) && bordering_colors.contains(&Color::White)
+                || bordering_colors.len() == 1
+            {
+                println!("Dame :)");
+            } else if bordering_colors.contains(&Color::Black) {
+                println!("Black +{} points!", &potential_points.len());
+                black_points += potential_points.len();
+            } else if bordering_colors.contains(&Color::White) {
+                println!("White +{} points!", &potential_points.len());
+                white_points += potential_points.len();
+            }
+        }
+
+        (black_points, white_points)
+    }
+
+    pub fn count_score(&self, board_points: (usize, usize), captures: (usize, usize), komi: usize) {
+        let black_total_points: usize = board_points.0 + captures.0;
+        let white_total_points: usize = board_points.1 + captures.1 + komi;
+        let black_won = black_total_points > white_total_points;
+        if black_won {
+            println!("Black won by: {}", black_total_points - white_total_points);
+        } else {
+            println!("Black won by: {}", white_total_points - black_total_points);
+        }
     }
 
     pub fn change_player(&self, mv: &mut Move) {

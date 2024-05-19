@@ -14,6 +14,7 @@ fn main() {
         player: board::Player::Black,
         loc: board::Loc { row: 0, col: 0 },
     };
+    let komi: usize = 2;
     let mut black_pass: bool = false;
     let mut white_pass: bool = false;
     let mut black_pass_counter: usize = 0;
@@ -36,10 +37,13 @@ fn main() {
                 &mut white_pass,
                 &mut white_pass_counter,
             );
-            board.print_captures(black_pass_counter, white_pass_counter);
+            board.calculate_captures(black_pass_counter, white_pass_counter);
             board.print_board();
             if black_pass && white_pass {
                 println!("Game ended!");
+                let captures = board.calculate_captures(black_pass_counter, white_pass_counter);
+                let board_points = board.count_board_points();
+                board.count_score(board_points, captures, komi);
                 break;
             }
             board.change_player(&mut current_move);
@@ -58,7 +62,7 @@ fn main() {
             }
             board = board.undo();
             board.change_player(&mut current_move);
-            board.print_captures(black_pass_counter, white_pass_counter);
+            board.calculate_captures(black_pass_counter, white_pass_counter);
             board.print_board();
             continue;
         } else {
@@ -82,7 +86,7 @@ fn main() {
         }
 
         board.play(&current_move);
-        board.print_captures(black_pass_counter, white_pass_counter);
+        board.calculate_captures(black_pass_counter, white_pass_counter);
         board.change_player(&mut current_move);
         board.print_board();
     }
