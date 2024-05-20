@@ -260,9 +260,15 @@ impl Board {
         let white_total_points: usize = board_points.1 + captures.1 + komi;
         let black_won = black_total_points > white_total_points;
         if black_won {
-            println!("Black won by: {}", black_total_points - white_total_points);
+            println!(
+                "Black won by: {}.5",
+                black_total_points - white_total_points - 1
+            );
         } else {
-            println!("Black won by: {}", white_total_points - black_total_points);
+            println!(
+                "White won by: {}.5",
+                white_total_points - black_total_points
+            );
         }
     }
 

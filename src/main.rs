@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::board::Player;
+use crate::board::{Loc, Player};
 
 pub mod board;
 pub mod board_test;
@@ -9,7 +9,7 @@ fn main() {
     board_test::run_tests();
     println!("\nAll tests P A S S E D !\n");
     println!("\nAfter all tests have passed... Your game may begin!\n\n");
-    let mut board = board::Board::new(11, 11);
+    let mut board = board::Board::new(7, 7);
     let mut current_move = board::Move {
         player: board::Player::Black,
         loc: board::Loc { row: 0, col: 0 },
@@ -20,6 +20,7 @@ fn main() {
     let mut black_pass_counter: usize = 0;
     let mut white_pass_counter: usize = 0;
 
+    // Game loop
     loop {
         println!("\nTurn: {:?}\n", current_move.player);
         let mut player_input: String = String::new();
@@ -41,9 +42,6 @@ fn main() {
             board.print_board();
             if black_pass && white_pass {
                 println!("Game ended!");
-                let captures = board.calculate_captures(black_pass_counter, white_pass_counter);
-                let board_points = board.count_board_points();
-                board.count_score(board_points, captures, komi);
                 break;
             }
             board.change_player(&mut current_move);
@@ -90,4 +88,22 @@ fn main() {
         board.change_player(&mut current_move);
         board.print_board();
     }
+    // Removing dead stones loop
+    loop {
+        println!("\nRemove dead stones or input \"result\" to calculate the result:\n");
+        board.print_board();
+        let mut player_input: String = String::new();
+        io::stdin()
+            .read_line(&mut player_input)
+            .expect("Failed to read input");
+
+        if player_input.trim() == "result" {
+            break;
+        }
+        board.remove_group(Loc::from_string(&player_input));
+    }
+
+    let captures = board.calculate_captures(black_pass_counter, white_pass_counter);
+    let board_points = board.count_board_points();
+    board.count_score(board_points, captures, komi);
 }
