@@ -1,147 +1,9 @@
-use rand::Rng;
-
-use crate::board::Board;
-use crate::board::Color;
 use crate::board::Loc;
 use crate::board::Move;
 use crate::board::Player;
 
 pub fn run_tests() {
-    println!("\nDifficult test for undo:\n\n(1,1) and (2,1) stones have been captured before\n\n");
-    let mut board = Board::new(7, 5);
-    let moves = [
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 1, col: 1 },
-        },
-        Move {
-            player: Player::White,
-            loc: Loc { row: 1, col: 2 },
-        },
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 2, col: 1 },
-        },
-        Move {
-            player: Player::White,
-            loc: Loc { row: 2, col: 2 },
-        },
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 3, col: 2 },
-        },
-        Move {
-            player: Player::White,
-            loc: Loc { row: 3, col: 1 },
-        },
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 4, col: 1 },
-        },
-        Move {
-            player: Player::White,
-            loc: Loc { row: 4, col: 2 },
-        },
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 2, col: 1 },
-        },
-    ];
-    for mv in moves {
-        board.play_if_move_is_valid(&mv);
-    }
-    board.print_board();
-    println!("\nAfter this undo, (2,1) stone should disappear and (3,1) stone appear.");
-    println!("Other stones should not appear!\n");
-    board = board.undo();
-    board.print_board();
-    assert!(board.fields[1][1] == Color::Empty);
-    assert!(board.fields[2][1] == Color::Empty);
-    assert!(board.fields[3][1] == Color::White);
-
-    println!("\n\nTest for KO:\n");
-    let mut board = Board::new(6, 5);
-    let moves = [
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 3, col: 1 },
-        },
-        Move {
-            player: Player::White,
-            loc: Loc { row: 2, col: 1 },
-        },
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 2, col: 2 },
-        },
-        Move {
-            player: Player::White,
-            loc: Loc { row: 1, col: 2 },
-        },
-        Move {
-            player: Player::Black,
-            loc: Loc { row: 1, col: 1 },
-        },
-    ];
-    for mv in moves {
-        board.play_if_move_is_valid(&mv);
-        board.print_board();
-        println!();
-    }
-    println!("Black just captured the stone at (2,1) with the move at (1,1):\n");
-    board.print_board();
-    println!("\n\nWhite tries to play, but shouldn't be able to recapture:\n\n");
-    board.play_if_move_is_valid(&Move {
-        player: Player::White,
-        loc: Loc { row: 2, col: 1 },
-    });
-    board.print_board();
-    assert!(board.fields[2][1] == Color::Empty);
-    assert!(board.fields[1][1] == Color::Black);
-
-    println!("\n\nBlack and White have to play elsewhere:\n\n");
-    board.play_if_move_is_valid(&Move {
-        player: Player::White,
-        loc: Loc { row: 4, col: 3 },
-    });
-    board.play_if_move_is_valid(&Move {
-        player: Player::Black,
-        loc: Loc { row: 3, col: 3 },
-    });
-    board.print_board();
-    println!("\n\nNow White can capture the KO:\n\n");
-    board.play_if_move_is_valid(&Move {
-        player: Player::White,
-        loc: Loc { row: 2, col: 1 },
-    });
-    board.print_board();
-    println!("\n\nBlack tries to capture, but can't:\n\n");
-    board.play_if_move_is_valid(&Move {
-        player: Player::Black,
-        loc: Loc { row: 1, col: 1 },
-    });
-    board.print_board();
-    assert!(board.fields[1][1] == Color::Empty);
-    assert!(board.fields[2][1] == Color::White);
-    println!("\n\nSo They have to play elsewhere:\n\n");
-    board.play_if_move_is_valid(&Move {
-        player: Player::Black,
-        loc: Loc { row: 2, col: 3 },
-    });
-    board.play_if_move_is_valid(&Move {
-        player: Player::White,
-        loc: Loc { row: 4, col: 2 },
-    });
-    board.print_board();
-    println!("\n\nFor Black to be able to recapture:\n\n");
-    board.play_if_move_is_valid(&Move {
-        player: Player::Black,
-        loc: Loc { row: 1, col: 1 },
-    });
-    board.print_board();
-    assert!(board.fields[2][1] == Color::Empty);
-    assert!(board.fields[1][1] == Color::Black);
-
+    // TODO: tests for passing will be different, because of the possible architecture change
     println!("\n\nTests for passing:\n");
     let mut black_pass = false;
     let mut white_pass = false;
@@ -162,8 +24,6 @@ pub fn run_tests() {
 
 #[cfg(test)]
 mod tests {
-    use std::backtrace;
-
     use rand::Rng;
 
     use crate::board::Board;
@@ -508,30 +368,24 @@ mod tests {
         board.remove_group(Loc { row: 1, col: 1 });
         assert!(board.fields[1][1] == Color::Empty);
         assert!(board.fields[1][2] == Color::Empty);
-        board.print_board();
         board.remove_group(Loc { row: 5, col: 1 });
         assert!(board.fields[4][1] == Color::Empty);
         assert!(board.fields[5][1] == Color::Empty);
-        board.print_board();
         board.remove_group(Loc { row: 3, col: 4 });
         assert!(board.fields[3][3] == Color::Empty);
         assert!(board.fields[3][4] == Color::Empty);
         assert!(board.fields[4][3] == Color::Empty);
-        board.print_board();
         board.remove_group(Loc { row: 6, col: 7 });
         assert!(board.fields[4][7] == Color::Empty);
         assert!(board.fields[5][7] == Color::Empty);
         assert!(board.fields[6][7] == Color::Empty);
-        board.print_board();
         board.remove_group(Loc { row: 3, col: 2 });
         assert!(board.fields[2][2] == Color::Empty);
         assert!(board.fields[3][1] == Color::Empty);
         assert!(board.fields[3][2] == Color::Empty);
         assert!(board.fields[4][2] == Color::Empty);
-        board.print_board();
         board.remove_group(Loc { row: 9, col: 1 });
         assert!(board.fields[9][1] == Color::Empty);
-        board.print_board();
         board.remove_group(Loc { row: 7, col: 3 });
         assert!(board.fields[6][2] == Color::Empty);
         assert!(board.fields[6][3] == Color::Empty);
@@ -565,6 +419,7 @@ mod tests {
             // Group 5
             vec![Loc { row: 9, col: 9 }],
         ];
+
         let white_groups: Vec<Vec<Loc>> = vec![
             // Takes group 1
             vec![
@@ -616,7 +471,6 @@ mod tests {
         }
 
         for (group_index, white_moves) in white_groups.iter().enumerate() {
-            println!("Group index: {}", group_index);
             for (i, mv) in white_moves.iter().enumerate() {
                 board.play_if_move_is_valid(&Move {
                     player: Player::White,
@@ -624,18 +478,10 @@ mod tests {
                 });
                 if i + 1 == white_moves.len() {
                     for loc in &black_groups[group_index] {
-                        println!(
-                            "i: {}, loc: {:?}, Color: {:?}",
-                            i, loc, board.fields[loc.row][loc.col]
-                        );
                         assert!(board.fields[loc.row][loc.col] == Color::Empty);
                     }
                 } else {
                     for loc in &black_groups[group_index] {
-                        println!(
-                            "i: {}, loc: {:?}, Color: {:?}",
-                            i, loc, board.fields[loc.row][loc.col]
-                        );
                         assert!(board.fields[loc.row][loc.col] == Color::Black);
                     }
                 }
@@ -665,20 +511,12 @@ mod tests {
                 test_move_history.push(current_move.clone());
                 board.play_if_move_is_valid(&current_move);
                 board.change_player(&mut current_move);
-                board.print_board();
-                println!();
                 moves_left -= 1;
             }
         }
 
-        for i in 1..=6 {
-            println!("\nUndo #{}:\n", i);
+        for _ in 1..=6 {
             let last_move = test_move_history.pop().unwrap();
-            println!(
-                "{:?}",
-                board.fields[last_move.clone().loc.row][last_move.clone().loc.col]
-            );
-            println!("{:?}", last_move);
             assert_ne!(
                 board.fields[last_move.clone().loc.row][last_move.clone().loc.col],
                 Color::Empty
@@ -711,14 +549,140 @@ mod tests {
                     Color::Empty
                 );
                 board.change_player(&mut current_move);
-                board.print_board();
+
                 println!();
                 moves_left -= 1;
             }
         }
+    }
 
-        println!("\nF I N A L  B O A R D:\n\n");
-        board.print_board();
-        println!();
+    #[test]
+    fn undo_restores_both_groups_that_were_captured_by_the_undone_move() {
+        let mut board = Board::new(7, 5);
+
+        let moves = [
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 1, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 1, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 2, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 2, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 3, col: 2 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 3, col: 1 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 4, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 4, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 2, col: 1 },
+            },
+        ];
+
+        for mv in moves {
+            board.play_if_move_is_valid(&mv);
+        }
+
+        board = board.undo();
+
+        assert!(board.fields[1][1] == Color::Empty);
+        assert!(board.fields[2][1] == Color::Empty);
+        assert!(board.fields[3][1] == Color::White);
+    }
+
+    #[test]
+    fn board_position_cannot_be_repeated() {
+        let mut board = Board::new(6, 5);
+
+        let moves = [
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 3, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 2, col: 1 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 2, col: 2 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 1, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 1, col: 1 },
+            },
+        ];
+
+        for mv in moves {
+            board.play_if_move_is_valid(&mv);
+        }
+
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 2, col: 1 },
+        });
+
+        assert!(board.fields[2][1] == Color::Empty);
+        assert!(board.fields[1][1] == Color::Black);
+
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 4, col: 3 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 3, col: 3 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 2, col: 1 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        });
+
+        assert!(board.fields[1][1] == Color::Empty);
+        assert!(board.fields[2][1] == Color::White);
+
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 2, col: 3 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 4, col: 2 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        });
+
+        assert!(board.fields[2][1] == Color::Empty);
+        assert!(board.fields[1][1] == Color::Black);
     }
 }

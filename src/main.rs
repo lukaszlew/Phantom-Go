@@ -6,9 +6,6 @@ pub mod board;
 pub mod board_test;
 
 fn main() {
-    board_test::run_tests();
-    println!("\nAll tests P A S S E D !\n");
-    println!("\nAfter all tests have passed... Your game may begin!\n\n");
     let mut board = board::Board::new(7, 7);
     let mut current_move = board::Move {
         player: board::Player::Black,
