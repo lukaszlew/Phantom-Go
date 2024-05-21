@@ -7,75 +7,6 @@ use crate::board::Move;
 use crate::board::Player;
 
 pub fn run_tests() {
-    let mut board = Board::new(11, 11);
-
-    let mut rng = rand::thread_rng();
-    let mut current_move = Move {
-        player: Player::White,
-        loc: Loc { row: 0, col: 0 },
-    };
-
-    let mut board = Board::new(7, 7);
-    let mut moves_left = 10;
-
-    while moves_left > 0 {
-        let row = rng.gen_range(0..7);
-        let col = rng.gen_range(0..7);
-        let current_move_coords = Loc { row, col };
-        current_move.loc = current_move_coords;
-
-        if board.move_is_valid(&current_move) {
-            board.play_if_move_is_valid(&current_move);
-            board.change_player(&mut current_move);
-            board.print_board();
-            println!();
-            moves_left -= 1;
-        }
-    }
-
-    println!("\nF I N A L  B O A R D:\n\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n1st undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n2nd undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n3rd undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n4th undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n5th undo:\n");
-    board.print_board();
-    board = board.undo();
-    println!("\n6th undo:\n");
-    board.print_board();
-
-    println!("\n\nContinuing after UNDOS!\n\n");
-    moves_left = 6;
-
-    while moves_left > 0 {
-        let row = rng.gen_range(0..7);
-        let col = rng.gen_range(0..7);
-        let current_move_coords = Loc { row, col };
-        current_move.loc = current_move_coords;
-
-        if board.move_is_valid(&current_move) {
-            board.play_if_move_is_valid(&current_move);
-            board.change_player(&mut current_move);
-            board.print_board();
-            println!();
-            moves_left -= 1;
-        }
-    }
-
-    println!("\nF I N A L  B O A R D:\n\n");
-    board.print_board();
-    println!();
-
     println!("\nDifficult test for undo:\n\n(1,1) and (2,1) stones have been captured before\n\n");
     let mut board = Board::new(7, 5);
     let moves = [
@@ -710,5 +641,84 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn undoing_multiple_moves_one_after_another_and_continuing_the_game_after() {
+        let mut test_move_history: Vec<Move> = vec![];
+        let mut rng = rand::thread_rng();
+        let mut current_move = Move {
+            player: Player::White,
+            loc: Loc { row: 0, col: 0 },
+        };
+
+        let mut board = Board::new(7, 7);
+        let mut moves_left = 10;
+
+        while moves_left > 0 {
+            let row = rng.gen_range(0..7);
+            let col = rng.gen_range(0..7);
+            let current_move_coords = Loc { row, col };
+            current_move.loc = current_move_coords;
+
+            if board.move_is_valid(&current_move) {
+                test_move_history.push(current_move.clone());
+                board.play_if_move_is_valid(&current_move);
+                board.change_player(&mut current_move);
+                board.print_board();
+                println!();
+                moves_left -= 1;
+            }
+        }
+
+        for i in 1..=6 {
+            println!("\nUndo #{}:\n", i);
+            let last_move = test_move_history.pop().unwrap();
+            println!(
+                "{:?}",
+                board.fields[last_move.clone().loc.row][last_move.clone().loc.col]
+            );
+            println!("{:?}", last_move);
+            assert_ne!(
+                board.fields[last_move.clone().loc.row][last_move.clone().loc.col],
+                Color::Empty
+            );
+
+            board = board.undo();
+
+            assert_eq!(
+                board.fields[last_move.clone().loc.row][last_move.clone().loc.col],
+                Color::Empty
+            );
+        }
+
+        moves_left = 6;
+
+        while moves_left > 0 {
+            let row = rng.gen_range(0..7);
+            let col = rng.gen_range(0..7);
+            let current_move_coords = Loc { row, col };
+            current_move.loc = current_move_coords;
+
+            if board.move_is_valid(&current_move) {
+                assert_eq!(
+                    board.fields[current_move.loc.row][current_move.clone().loc.col],
+                    Color::Empty
+                );
+                board.play_if_move_is_valid(&current_move);
+                assert_ne!(
+                    board.fields[current_move.loc.row][current_move.loc.col],
+                    Color::Empty
+                );
+                board.change_player(&mut current_move);
+                board.print_board();
+                println!();
+                moves_left -= 1;
+            }
+        }
+
+        println!("\nF I N A L  B O A R D:\n\n");
+        board.print_board();
+        println!();
     }
 }
