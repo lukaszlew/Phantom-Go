@@ -140,14 +140,14 @@ impl Default for Board {
             komi: 2,
         };
         // Setting up sentinels in rows
-        for i in 0..21 {
+        for i in 0..15 {
             board.fields[0][i] = Color::Invalid;
-            board.fields[21 - 1][i] = Color::Invalid;
+            board.fields[14][i] = Color::Invalid;
         }
         // Setting up sentinels in columns
-        for i in 0..21 {
+        for i in 0..15 {
             board.fields[i][0] = Color::Invalid;
-            board.fields[i][21 - 1] = Color::Invalid;
+            board.fields[i][14] = Color::Invalid;
         }
         board
     }
@@ -178,7 +178,7 @@ impl Board {
         self.fields[loc.row][loc.col]
     }
 
-    pub fn set(&mut self, loc: Loc, color: Color) {
+    fn set(&mut self, loc: Loc, color: Color) {
         self.fields[loc.row][loc.col] = color;
     }
 
@@ -217,26 +217,12 @@ impl Board {
             number_of_moves / 2 + number_of_moves % 2 - black_pass_counter;
         let expected_white_stones: usize = number_of_moves / 2 - white_pass_counter;
         let (black_stones, white_stones) = self.count_stones();
-        println!(
-            "\nMoves: {:?}\nBlack passes: {:?}, white passes: {:?}",
-            number_of_moves, black_pass_counter, white_pass_counter
-        );
-        println!(
-            "\nExpected black stones: {:?}, black stones: {:?}\nExpected white stones: {:?}, white stones: {:?}",
-             expected_black_stones, black_stones, expected_white_stones, white_stones
-        );
         let black_captures = expected_white_stones - white_stones;
         let white_captures = expected_black_stones - black_stones;
-        println!(
-            "Black captured {:?} stones,\nwhite captured {:?} stones\n",
-            black_captures, white_captures
-        );
         (black_captures, white_captures)
     }
     // Grouping empty "islands" and checking bordering Colors to decide which Color the points belong
     pub fn count_board_points(&self) -> (usize, usize) {
-        let mut white_points: usize = 0;
-        let mut black_points: usize = 0;
         let mut groups_of_potential_points: HashSet<Vec<Loc>> = HashSet::new();
         // Populating the HashSet of Empty "islands"
         for (r, row) in self.fields.iter().enumerate() {
@@ -254,7 +240,7 @@ impl Board {
         }
 
         // Checking borders for each "island"
-        fn check_bordering_colors(island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
+        fn get_bordering_colors(island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
             let mut bordering_colors: HashSet<Color> = HashSet::new();
             for field in island {
                 bordering_colors.insert(board.get(field.up()));
@@ -265,12 +251,17 @@ impl Board {
             bordering_colors
         }
 
+        let mut white_points: usize = 0;
+        let mut black_points: usize = 0;
+
         for potential_points in groups_of_potential_points {
-            println!("Points in question: {:?}", potential_points);
-            let bordering_colors = check_bordering_colors(&potential_points, self);
-            if bordering_colors.contains(&Color::Black) && bordering_colors.contains(&Color::White)
-                || bordering_colors.len() == 1
-            {
+            let bordering_colors = get_bordering_colors(&potential_points, self);
+            let potential_points_border_both_colors = bordering_colors.contains(&Color::Black)
+                && bordering_colors.contains(&Color::White);
+            let board_is_empty = bordering_colors.len() == 1;
+            let potential_points_are_dame = potential_points_border_both_colors || board_is_empty;
+            // Leaving prints until tests are written
+            if potential_points_are_dame {
                 println!("Dame :)");
             } else if bordering_colors.contains(&Color::Black) {
                 println!("Black +{} points!", &potential_points.len());
