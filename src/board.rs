@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::io;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
@@ -422,4 +423,13 @@ impl Board {
 pub fn sort(mut group: Vec<Loc>) -> Vec<Loc> {
     group.sort_by(|a, b| a.row.cmp(&b.row).then(a.col.cmp(&b.col)));
     group
+}
+
+pub fn take_player_input() -> String {
+    let mut player_input = String::new();
+    io::stdin()
+        .read_line(&mut player_input)
+        .expect("Failed to read input");
+    player_input = player_input.trim().to_string();
+    player_input
 }

@@ -1,5 +1,3 @@
-use std::io;
-
 use crate::board::{Board, Loc, Move, Player};
 
 pub mod board;
@@ -19,16 +17,16 @@ fn main() {
 
     // Game loop
     loop {
-        println!("\nTurn: {:?}\n", current_move.player);
-        let mut player_input: String = String::new();
-        io::stdin()
-            .read_line(&mut player_input)
-            .expect("Failed to read input");
+        println!(
+            "Turn: {:?}\nInput coordinates to play, 'u' to undo, 'p' to pass or 'q' to quit",
+            current_move.player
+        );
+        let player_input = board::take_player_input();
 
-        if player_input.trim() == "q" {
+        if player_input == "q" {
             println!("\nQuit game!\n");
-            break;
-        } else if player_input.trim() == "pass" {
+            return;
+        } else if player_input == "p" {
             current_move.pass(
                 &mut black_pass,
                 &mut black_pass_counter,
@@ -43,9 +41,9 @@ fn main() {
             }
             board.change_player(&mut current_move);
             continue;
-        } else if player_input.trim() == "gh" {
+        } else if player_input == "gh" {
             println!("\n\n{:?}\n\n", board.game_history);
-        } else if player_input.trim() == "u" && board.game_history.len() != 0 {
+        } else if player_input == "u" && board.game_history.len() != 0 {
             if black_pass || white_pass {
                 match current_move.player {
                     Player::Black => white_pass_counter -= 1,
@@ -85,16 +83,14 @@ fn main() {
         board.change_player(&mut current_move);
         board.print_board();
     }
+
+    println!("\nRemove dead stones or input 'r' to calculate the result:\n");
     // Removing dead stones loop
     loop {
-        println!("\nRemove dead stones or input \"result\" to calculate the result:\n");
         board.print_board();
-        let mut player_input: String = String::new();
-        io::stdin()
-            .read_line(&mut player_input)
-            .expect("Failed to read input");
+        let player_input = board::take_player_input();
 
-        if player_input.trim() == "result" {
+        if player_input == "r" {
             break;
         }
         board.remove_group(Loc::from_string(&player_input));
