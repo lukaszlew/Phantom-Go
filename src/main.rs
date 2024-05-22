@@ -9,7 +9,6 @@ fn main() {
         player: Player::Black,
         loc: Loc { row: 0, col: 0 },
     };
-    let komi: usize = 2;
     let mut black_pass: bool = false;
     let mut white_pass: bool = false;
     let mut black_pass_counter: usize = 0;
@@ -98,5 +97,5 @@ fn main() {
 
     let captures = board.calculate_captures(black_pass_counter, white_pass_counter);
     let board_points = board.count_board_points();
-    board.count_score(board_points, captures, komi);
+    board.count_score(board_points, captures, board.komi);
 }

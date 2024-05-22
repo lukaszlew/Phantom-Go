@@ -48,24 +48,28 @@ impl Loc {
             col: self.col,
         }
     }
+
     pub fn down(&self) -> Self {
         Loc {
             row: self.row + 1,
             col: self.col,
         }
     }
+
     pub fn left(&self) -> Self {
         Loc {
             row: self.row,
             col: self.col - 1,
         }
     }
+
     pub fn right(&self) -> Self {
         Loc {
             row: self.row,
             col: self.col + 1,
         }
     }
+
     pub fn from_string(s: &str) -> Self {
         let mut loc = Loc { row: 0, col: 0 };
         // if input doesn't have a comma - definitely invalid
