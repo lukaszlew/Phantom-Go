@@ -408,19 +408,12 @@ impl Board {
     }
 
     pub fn undo(mut self) -> Self {
-        if let Some(undo_loc) = self.game_history.pop() {
-            self.fields[undo_loc.loc.row][undo_loc.loc.col] = Color::Empty;
-            for mv in &self.game_history {
-                self.fields[mv.loc.row][mv.loc.col] = Color::Empty;
-            }
-            let mut board_after_undo = Board::new(self.fields.len(), self.fields[0].len(), 2);
-            for mv in &self.game_history {
-                board_after_undo.play(mv);
-            }
-            self = board_after_undo;
+        self.game_history.pop();
+        let mut board_after_undo = Board::new(self.fields.len(), self.fields[0].len(), self.komi);
+        for mv in &self.game_history {
+            board_after_undo.play(mv);
         }
-
-        self
+        board_after_undo
     }
 }
 
