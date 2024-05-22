@@ -162,12 +162,12 @@ impl Board {
             komi,
         };
         // Setting up sentinels in rows
-        for i in 0..rows {
+        for i in 0..cols {
             board.fields[0][i] = Color::Invalid;
             board.fields[rows - 1][i] = Color::Invalid;
         }
         // Setting up sentinels in columns
-        for i in 0..cols {
+        for i in 0..rows {
             board.fields[i][0] = Color::Invalid;
             board.fields[i][cols - 1] = Color::Invalid;
         }
@@ -184,8 +184,8 @@ impl Board {
 
     pub fn print_board(&self) {
         for row in &self.fields {
-            for cell in row {
-                print!("{} ", cell.to_string());
+            for field in row {
+                print!("{} ", field.to_string());
             }
             println!();
         }
@@ -195,10 +195,10 @@ impl Board {
         let mut black: usize = 0;
         let mut white: usize = 0;
         for row in &self.fields {
-            for cell in row {
-                if *cell == Color::White {
+            for field in row {
+                if *field == Color::White {
                     white += 1;
-                } else if *cell == Color::Black {
+                } else if *field == Color::Black {
                     black += 1;
                 }
             }
@@ -240,8 +240,8 @@ impl Board {
         let mut groups_of_potential_points: HashSet<Vec<Loc>> = HashSet::new();
         // Populating the HashSet of Empty "islands"
         for (r, row) in self.fields.iter().enumerate() {
-            for (c, cell) in row.iter().enumerate() {
-                if *cell == Color::Empty {
+            for (c, field) in row.iter().enumerate() {
+                if *field == Color::Empty {
                     if !groups_of_potential_points
                         .iter()
                         .any(|group_of_empty| group_of_empty.contains(&Loc { row: r, col: c }))
@@ -256,11 +256,11 @@ impl Board {
         // Checking borders for each "island"
         fn check_bordering_colors(island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
             let mut bordering_colors: HashSet<Color> = HashSet::new();
-            for cell in island {
-                bordering_colors.insert(board.get(cell.up()));
-                bordering_colors.insert(board.get(cell.down()));
-                bordering_colors.insert(board.get(cell.left()));
-                bordering_colors.insert(board.get(cell.right()));
+            for field in island {
+                bordering_colors.insert(board.get(field.up()));
+                bordering_colors.insert(board.get(field.down()));
+                bordering_colors.insert(board.get(field.left()));
+                bordering_colors.insert(board.get(field.right()));
             }
             bordering_colors
         }
