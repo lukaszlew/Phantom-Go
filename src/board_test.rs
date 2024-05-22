@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn stones_are_grouped_correctly() {
-        let mut board = Board::new(11, 11);
+        let mut board = Board::new(11, 11, 2);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -245,7 +245,7 @@ mod tests {
 
     #[test]
     fn liberties_are_calculated_correctly() {
-        let mut board = Board::new(11, 11);
+        let mut board = Board::new(11, 11, 2);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -317,7 +317,7 @@ mod tests {
 
     #[test]
     fn groups_are_removed_correctly() {
-        let mut board = Board::new(11, 11);
+        let mut board = Board::new(11, 11, 2);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -396,7 +396,7 @@ mod tests {
 
     #[test]
     fn groups_removal_is_triggered_when_their_liberties_reach_0() {
-        let mut board = Board::new(11, 11);
+        let mut board = Board::new(11, 11, 2);
 
         let black_groups: Vec<Vec<Loc>> = vec![
             // Group 1
@@ -498,7 +498,7 @@ mod tests {
             loc: Loc { row: 0, col: 0 },
         };
 
-        let mut board = Board::new(7, 7);
+        let mut board = Board::new(7, 7, 2);
         let mut moves_left = 10;
 
         while moves_left > 0 {
@@ -558,7 +558,7 @@ mod tests {
 
     #[test]
     fn undo_restores_both_groups_that_were_captured_by_the_undone_move() {
-        let mut board = Board::new(7, 5);
+        let mut board = Board::new(7, 5, 2);
 
         let moves = [
             Move {
@@ -612,7 +612,7 @@ mod tests {
 
     #[test]
     fn board_position_cannot_be_repeated() {
-        let mut board = Board::new(6, 5);
+        let mut board = Board::new(6, 5, 2);
 
         let moves = [
             Move {

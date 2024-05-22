@@ -1,15 +1,15 @@
 use std::io;
 
-use crate::board::{Loc, Player};
+use crate::board::{Board, Loc, Move, Player};
 
 pub mod board;
 pub mod board_test;
 
 fn main() {
-    let mut board = board::Board::new(7, 7);
-    let mut current_move = board::Move {
-        player: board::Player::Black,
-        loc: board::Loc { row: 0, col: 0 },
+    let mut board = Board::new(7, 7, 2);
+    let mut current_move = Move {
+        player: Player::Black,
+        loc: Loc { row: 0, col: 0 },
     };
     let komi: usize = 2;
     let mut black_pass: bool = false;
@@ -65,8 +65,8 @@ fn main() {
             white_pass = false;
         }
 
-        let coords = board::Loc::from_string(&player_input);
-        let invalid_coord = board::Loc { row: 0, col: 0 };
+        let coords = Loc::from_string(&player_input);
+        let invalid_coord = Loc { row: 0, col: 0 };
 
         if coords == invalid_coord {
             println!("\nPut in coords in \"row_index, column_index format\" ");

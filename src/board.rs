@@ -123,22 +123,46 @@ impl Move {
 pub struct Board {
     pub fields: Vec<Vec<Color>>,
     pub game_history: Vec<Move>,
+    pub komi: usize,
+}
+
+impl Default for Board {
+    fn default() -> Self {
+        // Initializing an empty boardą
+        let mut board = Board {
+            fields: vec![vec![Color::Empty; 15]; 15],
+            game_history: vec![],
+            komi: 2,
+        };
+        // Setting up sentinels in rows
+        for i in 0..21 {
+            board.fields[0][i] = Color::Invalid;
+            board.fields[21 - 1][i] = Color::Invalid;
+        }
+        // Setting up sentinels in columns
+        for i in 0..21 {
+            board.fields[i][0] = Color::Invalid;
+            board.fields[i][21 - 1] = Color::Invalid;
+        }
+        board
+    }
 }
 
 impl Board {
-    pub fn new(rows: usize, cols: usize) -> Self {
-        // Initializing an empty board
+    pub fn new(rows: usize, cols: usize, komi: usize) -> Self {
+        // Initializing an empty boardą
         let mut board = Board {
             fields: vec![vec![Color::Empty; cols]; rows],
             game_history: vec![],
+            komi,
         };
         // Setting up sentinels in rows
-        for i in 0..cols {
+        for i in 0..rows {
             board.fields[0][i] = Color::Invalid;
             board.fields[rows - 1][i] = Color::Invalid;
         }
         // Setting up sentinels in columns
-        for i in 0..rows {
+        for i in 0..cols {
             board.fields[i][0] = Color::Invalid;
             board.fields[i][cols - 1] = Color::Invalid;
         }
@@ -384,7 +408,7 @@ impl Board {
             for mv in &self.game_history {
                 self.fields[mv.loc.row][mv.loc.col] = Color::Empty;
             }
-            let mut board_after_undo = Board::new(self.fields.len(), self.fields[0].len());
+            let mut board_after_undo = Board::new(self.fields.len(), self.fields[0].len(), 2);
             for mv in &self.game_history {
                 board_after_undo.play(mv);
             }
