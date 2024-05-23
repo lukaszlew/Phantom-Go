@@ -322,13 +322,15 @@ impl Board {
         for mv in gh_copy {
             board_from_2_moves_ago.play(&mv);
         }
-        // Check if the group has been removed after the move - if it was, it was a suidical move
-        potential_board.fields[mv.loc.row][mv.loc.col] != Color::Empty
-            && !board_from_2_moves_ago.board_position_is_reapeated(potential_board)
+        // If the group has been removed after the move, it was a suicidcal move
+        let move_is_suicidal = potential_board.get(mv.loc) == Color::Empty;
+        let board_is_repeated = board_from_2_moves_ago.board_position_is_reapeated(potential_board);
+
+        !move_is_suicidal && !board_is_repeated
     }
 
     pub fn play(&mut self, mv: &Move) {
-        self.fields[mv.loc.row][mv.loc.col] = mv.player.to_color();
+        self.set(mv.loc, mv.player.to_color());
         // Remove dead groups
         pub fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
             let color = board.get(loc);
@@ -357,7 +359,7 @@ impl Board {
         sort(group_stones_coordinates)
     }
 
-    pub fn flood_fill(&self, loc: Loc, color: Color, visited: &mut Vec<Loc>) {
+    fn flood_fill(&self, loc: Loc, color: Color, visited: &mut Vec<Loc>) {
         if visited.contains(&loc) {
             return;
         }
@@ -376,7 +378,7 @@ impl Board {
     pub fn count_liberties(&self, loc: Loc) -> usize {
         let group = self.group_stones(loc);
         let mut liberties: HashSet<Loc> = HashSet::new();
-        pub fn get_check_empty_insert_combo(board: &Board, loc: Loc, liberties: &mut HashSet<Loc>) {
+        fn get_check_empty_insert_combo(board: &Board, loc: Loc, liberties: &mut HashSet<Loc>) {
             let color = board.get(loc);
             if color == Color::Empty {
                 liberties.insert(loc);
