@@ -89,6 +89,10 @@ impl Loc {
         loc
     }
 
+    fn is_on_board(&self, board_size: (usize, usize)) -> bool {
+        self.row < board_size.0 - 1 && self.col < board_size.1 - 1
+    }
+
     fn coords(&self, rows: usize) -> String {
         let col = "ABCDEFGHJKLMNOPQRST";
         let row = rows - self.row;
@@ -189,6 +193,10 @@ impl Board {
             }
             println!();
         }
+    }
+
+    fn board_size(&self) -> (usize, usize) {
+        (self.fields.len(), self.fields[0].len())
     }
 
     fn count_stones(&self) -> (usize, usize) {
@@ -304,9 +312,8 @@ impl Board {
     }
 
     pub fn move_is_valid(&self, mv: &Move) -> bool {
-        let rows = self.fields.len();
-        let cols = self.fields[0].len();
-        if mv.loc.row > rows - 1 || mv.loc.col > cols - 1 {
+        let board_size = self.board_size();
+        if !mv.loc.is_on_board(board_size) {
             return false;
         }
         let mut potential_board = self.clone();
@@ -318,7 +325,8 @@ impl Board {
 
         let mut gh_copy = self.game_history.clone();
         gh_copy.pop();
-        let mut board_from_2_moves_ago = self.clone();
+        let mut board_from_2_moves_ago =
+            Board::new(self.fields.len(), self.fields[0].len(), self.komi);
         for mv in gh_copy {
             board_from_2_moves_ago.play(&mv);
         }
