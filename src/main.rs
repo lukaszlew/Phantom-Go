@@ -29,6 +29,24 @@ fn main() {
                 return;
             }
             "p" => {
+                let previous_move = board.game_history.last();
+                let previous_move_is_pass = match previous_move {
+                    Some(previous_move) => previous_move.loc.row == 99,
+                    None => false,
+                };
+
+                if previous_move_is_pass {
+                    println!("\nGame ended!\n");
+                    break;
+                }
+
+                let pass: Move = Move {
+                    player: current_move.player.clone(),
+                    loc: Loc { row: 99, col: 99 },
+                };
+
+                board.game_history.push(pass);
+
                 current_move.pass(
                     &mut black_pass,
                     &mut black_pass_counter,
@@ -37,14 +55,14 @@ fn main() {
                 );
                 board.calculate_captures(black_pass_counter, white_pass_counter);
                 board.print_board();
-                if black_pass && white_pass {
-                    println!("\nGame ended!\n1,2");
-                    break;
-                }
+
                 board.change_player(&mut current_move);
                 continue;
             }
-            "gh" => println!("\n\n{:?}\n\n", board.game_history),
+            "gh" => {
+                println!("\n\n{:?}\n\n", board.game_history);
+                continue;
+            }
             "u" => {
                 if black_pass || white_pass {
                     match current_move.player {

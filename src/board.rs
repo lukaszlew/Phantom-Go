@@ -99,6 +99,18 @@ impl Loc {
         let col = col.chars().nth(self.col).unwrap();
         return format!("{}{}", col, row);
     }
+
+    // Checking borders for each "island"
+    fn get_bordering_colors(&self, island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
+        let mut bordering_colors: HashSet<Color> = HashSet::new();
+        for field in island {
+            bordering_colors.insert(board.get(field.up()));
+            bordering_colors.insert(board.get(field.down()));
+            bordering_colors.insert(board.get(field.left()));
+            bordering_colors.insert(board.get(field.right()));
+        }
+        bordering_colors
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -227,25 +239,68 @@ impl Board {
         let (black_stones, white_stones) = self.count_stones();
         let black_captures = expected_white_stones - white_stones;
         let white_captures = expected_black_stones - black_stones;
+        println!(
+            "Black captured {:?} stones,\nwhite captured {:?} stones\n",
+            black_captures, white_captures
+        );
         (black_captures, white_captures)
     }
-    // Grouping empty "islands" and checking bordering Colors to decide which Color the points belong
-    pub fn count_board_points(&self) -> (usize, usize) {
-        let mut groups_of_potential_points: HashSet<Vec<Loc>> = HashSet::new();
-        // Populating the HashSet of Empty "islands"
-        for (r, row) in self.fields.iter().enumerate() {
-            for (c, field) in row.iter().enumerate() {
-                if *field == Color::Empty {
-                    if !groups_of_potential_points
-                        .iter()
-                        .any(|group_of_empty| group_of_empty.contains(&Loc { row: r, col: c }))
-                    {
-                        groups_of_potential_points
-                            .insert(self.group_stones(Loc { row: r, col: c }));
-                    }
-                }
+
+    fn get_all_loc(&self) -> Vec<Loc> {
+        let mut all_loc: Vec<Loc> = vec![];
+        for (i, row) in self.fields.iter().enumerate() {
+            for (j, field) in row.iter().enumerate() {
+                all_loc.push(Loc { row: i, col: j })
             }
         }
+        all_loc
+    }
+    // TODO: Delete this function?
+    // Creates a set of potential points - "islands" of Color::Empty
+    fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
+        let mut groups_of_potential_points: HashSet<Vec<Loc>> = HashSet::new();
+        let all_loc = self.get_all_loc();
+        for loc in all_loc {
+            if self.get(loc) == Color::Empty {
+                groups_of_potential_points.insert(self.group_stones(loc));
+            }
+        }
+        groups_of_potential_points
+    }
+
+    pub fn count_potential_points(&self, loc: Loc) -> usize {
+        if self.get(loc) != Color::Empty {
+            return 0;
+        }
+
+        let group = self.group_stones(loc);
+        let bordering_colors = loc.get_bordering_colors(&group, &self);
+
+        let potential_points_border_both_colors =
+            bordering_colors.contains(&Color::Black) && bordering_colors.contains(&Color::White);
+        let board_is_empty =
+            bordering_colors.len() == 1 && bordering_colors.contains(&Color::Invalid);
+        let potential_points_are_dame = potential_points_border_both_colors || board_is_empty;
+
+        let mut points: usize = 0;
+
+        if potential_points_are_dame {
+            println!("Dame :)");
+        } else if bordering_colors.contains(&Color::Black) {
+            println!("Black +{} points!", &group.len());
+            points = group.len();
+        } else if bordering_colors.contains(&Color::White) {
+            println!("White +{} points!", &group.len());
+            points = group.len();
+        }
+
+        points
+    }
+
+    // Grouping empty "islands" and checking bordering Colors to decide which Color the points belong
+    pub fn count_board_points(&self) -> (usize, usize) {
+        // Populating the HashSet of Empty "islands"
+        let groups_of_potential_points = self.create_set_of_potential_points();
 
         // Checking borders for each "island"
         fn get_bordering_colors(island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
@@ -263,10 +318,17 @@ impl Board {
         let mut black_points: usize = 0;
 
         for potential_points in groups_of_potential_points {
+            println!(
+                "Potential points in question: {:?}\nTheir locations: {:?}",
+                potential_points.len(),
+                potential_points
+            );
             let bordering_colors = get_bordering_colors(&potential_points, self);
+            println!("Bordering color: {:?}", bordering_colors);
             let potential_points_border_both_colors = bordering_colors.contains(&Color::Black)
                 && bordering_colors.contains(&Color::White);
-            let board_is_empty = bordering_colors.len() == 1;
+            let board_is_empty =
+                bordering_colors.len() == 1 && bordering_colors.contains(&Color::Invalid);
             let potential_points_are_dame = potential_points_border_both_colors || board_is_empty;
             // Leaving prints until tests are written
             if potential_points_are_dame {
@@ -278,6 +340,7 @@ impl Board {
                 println!("White +{} points!", &potential_points.len());
                 white_points += potential_points.len();
             }
+            println!();
         }
 
         (black_points, white_points)
