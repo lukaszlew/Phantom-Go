@@ -338,7 +338,9 @@ impl Board {
     }
 
     pub fn play(&mut self, mv: &Move) {
-        self.set(mv.loc, mv.player.to_color());
+        if self.get(mv.loc) == Color::Empty {
+            self.set(mv.loc, mv.player.to_color());
+        }
         // Remove dead groups
         pub fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
             let color = board.get(loc);

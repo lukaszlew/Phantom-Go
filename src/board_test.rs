@@ -33,6 +33,37 @@ mod tests {
     use crate::board::Player;
 
     #[test]
+    fn stones_have_to_be_placed_on_empty_fields() {
+        let mut board = Board::new(5, 5, 0);
+        assert_eq!(board.fields[1][1], Color::Empty);
+        board.play(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        });
+        board.print_board();
+        assert_eq!(board.fields[1][1], Color::Black);
+        board.play(&Move {
+            player: Player::White,
+            loc: Loc { row: 1, col: 1 },
+        });
+        board.print_board();
+        assert_eq!(board.fields[1][1], Color::Black);
+        assert_eq!(board.fields[1][2], Color::Empty);
+        board.play(&Move {
+            player: Player::White,
+            loc: Loc { row: 1, col: 2 },
+        });
+        assert_eq!(board.fields[1][1], Color::Black);
+        assert_eq!(board.fields[1][2], Color::White);
+        board.play(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 2 },
+        });
+        assert_eq!(board.fields[1][1], Color::Black);
+        assert_eq!(board.fields[1][2], Color::White);
+    }
+
+    #[test]
     fn stones_are_grouped_correctly() {
         let mut board = Board::new(11, 11, 2);
 
