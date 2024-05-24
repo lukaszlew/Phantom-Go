@@ -70,23 +70,23 @@ impl Loc {
         }
     }
 
-    pub fn from_string(s: &str) -> Self {
+    pub fn from_string(s: &str) -> Option<Self> {
         let mut loc = Loc { row: 0, col: 0 };
         // if input doesn't have a comma - definitely invalid
         if !s.contains(",") {
-            return loc;
+            return None;
         }
 
         let row_col: Vec<&str> = s.split(",").map(|part| part.trim()).collect();
         // if has more than 1 - definitely invalid
         if row_col.len() != 2 {
-            return loc;
+            return None;
         }
 
         loc.row = row_col[0].parse::<usize>().unwrap_or(0);
         loc.col = row_col[1].parse::<usize>().unwrap_or(0);
 
-        loc
+        Some(loc)
     }
 
     fn is_on_board(&self, board_size: (usize, usize)) -> bool {

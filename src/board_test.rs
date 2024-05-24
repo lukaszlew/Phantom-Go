@@ -9,7 +9,7 @@ pub fn run_tests() {
     let mut white_pass = false;
     let mut mv = Move {
         player: Player::Black,
-        loc: Loc::from_string("3,3"),
+        loc: Loc::from_string("3, 3").expect("Failed to create Loc from string"),
     };
     assert!(black_pass == false);
     assert!(white_pass == false);
@@ -69,7 +69,7 @@ mod tests {
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
-            Loc::from_string("1, 1"),
+            Loc::from_string("1, 1").expect("Failed to create Loc from string"),
             Loc { row: 1, col: 2 },
             // Group 2
             Loc { row: 4, col: 1 },
@@ -280,7 +280,7 @@ mod tests {
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
-            Loc::from_string("1, 1"),
+            Loc::from_string("1, 1").expect("Failed to create Loc from string"),
             Loc { row: 1, col: 2 },
             // Group 2
             Loc { row: 4, col: 1 },
@@ -352,7 +352,7 @@ mod tests {
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
-            Loc::from_string("1, 1"),
+            Loc::from_string("1, 1").expect("Failed to create Loc from string"),
             Loc { row: 1, col: 2 },
             // Group 2
             Loc { row: 4, col: 1 },
