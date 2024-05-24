@@ -21,7 +21,6 @@ fn main() {
             current_move.player
         );
         let player_input = board::take_player_input();
-        let mut loc: Loc = Loc { row: 0, col: 0 };
 
         match player_input.as_str() {
             "q" => {
@@ -84,14 +83,12 @@ fn main() {
                     println!("\nInvalid move :c\nT R Y  A G A I N !\n");
                     continue;
                 }
-                Some(valid_loc_string) => loc = valid_loc_string,
+                Some(valid_loc_string) => current_move.loc = valid_loc_string,
             },
         }
 
         black_pass = false;
         white_pass = false;
-
-        current_move.loc = loc;
 
         if !board.move_is_valid(&current_move) {
             println!("\nInvalid move :c\nT R Y  A G A I N !\n");
