@@ -255,7 +255,7 @@ impl Board {
         }
         all_loc
     }
-    // TODO: Delete this function?
+    // TODO: Improve performance by checking if this group has already been added
     // Creates a set of potential points - "islands" of Color::Empty
     fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
         let mut groups_of_potential_points: HashSet<Vec<Loc>> = HashSet::new();
@@ -268,9 +268,9 @@ impl Board {
         groups_of_potential_points
     }
 
-    pub fn count_potential_points(&self, loc: Loc) -> usize {
+    pub fn count_potential_points(&self, loc: Loc) -> (Color, usize) {
         if self.get(loc) != Color::Empty {
-            return 0;
+            return (Color::Invalid, 0);
         }
 
         let group = self.group_stones(loc);
@@ -282,16 +282,15 @@ impl Board {
             bordering_colors.len() == 1 && bordering_colors.contains(&Color::Invalid);
         let potential_points_are_dame = potential_points_border_both_colors || board_is_empty;
 
-        let mut points: usize = 0;
+        let mut points: (Color, usize) = (Color::Empty, 0);
 
-        if potential_points_are_dame {
-            println!("Dame :)");
-        } else if bordering_colors.contains(&Color::Black) {
-            println!("Black +{} points!", &group.len());
-            points = group.len();
-        } else if bordering_colors.contains(&Color::White) {
-            println!("White +{} points!", &group.len());
-            points = group.len();
+        if !potential_points_are_dame {
+            if bordering_colors.contains(&Color::Black) {
+                points = (Color::Black, group.len());
+            }
+            if bordering_colors.contains(&Color::White) {
+                points = (Color::White, group.len());
+            }
         }
 
         points
@@ -302,45 +301,17 @@ impl Board {
         // Populating the HashSet of Empty "islands"
         let groups_of_potential_points = self.create_set_of_potential_points();
 
-        // Checking borders for each "island"
-        fn get_bordering_colors(island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
-            let mut bordering_colors: HashSet<Color> = HashSet::new();
-            for field in island {
-                bordering_colors.insert(board.get(field.up()));
-                bordering_colors.insert(board.get(field.down()));
-                bordering_colors.insert(board.get(field.left()));
-                bordering_colors.insert(board.get(field.right()));
-            }
-            bordering_colors
-        }
-
         let mut white_points: usize = 0;
         let mut black_points: usize = 0;
 
         for potential_points in groups_of_potential_points {
-            println!(
-                "Potential points in question: {:?}\nTheir locations: {:?}",
-                potential_points.len(),
-                potential_points
-            );
-            let bordering_colors = get_bordering_colors(&potential_points, self);
-            println!("Bordering color: {:?}", bordering_colors);
-            let potential_points_border_both_colors = bordering_colors.contains(&Color::Black)
-                && bordering_colors.contains(&Color::White);
-            let board_is_empty =
-                bordering_colors.len() == 1 && bordering_colors.contains(&Color::Invalid);
-            let potential_points_are_dame = potential_points_border_both_colors || board_is_empty;
-            // Leaving prints until tests are written
-            if potential_points_are_dame {
-                println!("Dame :)");
-            } else if bordering_colors.contains(&Color::Black) {
-                println!("Black +{} points!", &potential_points.len());
-                black_points += potential_points.len();
-            } else if bordering_colors.contains(&Color::White) {
-                println!("White +{} points!", &potential_points.len());
-                white_points += potential_points.len();
+            let color_and_points = self.count_potential_points(potential_points[0]);
+            match color_and_points.0 {
+                Color::Black => black_points += color_and_points.1,
+                Color::White => white_points += color_and_points.1,
+                Color::Empty => (),
+                Color::Invalid => (),
             }
-            println!();
         }
 
         (black_points, white_points)

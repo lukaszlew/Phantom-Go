@@ -718,7 +718,7 @@ mod tests {
     }
 
     #[test]
-    fn board_points_are_counted_correctly() {
+    fn each_group_points_are_counted_correctly() {
         let mut board = Board::new(8, 8, 0);
         let black_groups = [
             Loc { row: 1, col: 2 },
@@ -779,10 +779,73 @@ mod tests {
             Loc { row: 6, col: 6 },
         ];
 
-        let expected_points = [1, 0, 2, 2, 8, 8, 0, 0, 8, 8, 0, 8, 8, 0, 0, 8, 8];
+        let expected_points = [
+            (Color::Black, 1),
+            (Color::Empty, 0),
+            (Color::Black, 2),
+            (Color::Black, 2),
+            (Color::White, 8),
+            (Color::White, 8),
+            (Color::Empty, 0),
+            (Color::Empty, 0),
+            (Color::White, 8),
+            (Color::White, 8),
+            (Color::Empty, 0),
+            (Color::White, 8),
+            (Color::White, 8),
+            (Color::Empty, 0),
+            (Color::Empty, 0),
+            (Color::White, 8),
+            (Color::White, 8),
+        ];
 
         for (i, loc) in loc_of_points_to_calculate.iter().enumerate() {
             assert_eq!(board.count_potential_points(*loc), expected_points[i]);
         }
+    }
+
+    #[test]
+    fn board_points_are_counted_correctly() {
+        let mut board = Board::new(8, 8, 0);
+        let black_groups = [
+            Loc { row: 1, col: 2 },
+            Loc { row: 1, col: 3 },
+            Loc { row: 1, col: 5 },
+            Loc { row: 2, col: 1 },
+            Loc { row: 2, col: 3 },
+            Loc { row: 3, col: 1 },
+            Loc { row: 3, col: 3 },
+            Loc { row: 4, col: 2 },
+            Loc { row: 5, col: 2 },
+            Loc { row: 6, col: 2 },
+        ];
+
+        let white_groups = [
+            Loc { row: 1, col: 4 },
+            Loc { row: 2, col: 4 },
+            Loc { row: 2, col: 5 },
+            Loc { row: 2, col: 6 },
+            Loc { row: 3, col: 4 },
+            Loc { row: 4, col: 4 },
+            Loc { row: 5, col: 1 },
+            Loc { row: 5, col: 4 },
+            Loc { row: 6, col: 4 },
+        ];
+
+        for mv in black_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::Black,
+                loc: mv,
+            })
+        }
+
+        for mv in white_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::White,
+                loc: mv,
+            })
+        }
+
+        assert_eq!(board.count_board_points(), (3, 8));
     }
 }
