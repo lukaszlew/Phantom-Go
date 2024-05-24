@@ -33,6 +33,13 @@ impl Player {
             Player::White => Color::White,
         }
     }
+
+    pub fn change(&mut self) -> Self {
+        match self {
+            Player::Black => Player::White,
+            Player::White => Player::Black,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -333,13 +340,6 @@ impl Board {
                 "White won by: {}.5",
                 white_total_points - black_total_points
             );
-        }
-    }
-
-    pub fn change_player(&self, mv: &mut Move) {
-        mv.player = match mv.player {
-            Player::Black => Player::White,
-            Player::White => Player::Black,
         }
     }
 

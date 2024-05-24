@@ -56,7 +56,7 @@ fn main() {
                 board.calculate_captures(black_pass_counter, white_pass_counter);
                 board.print_board();
 
-                board.change_player(&mut current_move);
+                current_move.player.change();
                 continue;
             }
             "gh" => {
@@ -69,12 +69,12 @@ fn main() {
                         Player::Black => white_pass_counter -= 1,
                         Player::White => black_pass_counter -= 1,
                     }
-                    board.change_player(&mut current_move);
+                    current_move.player.change();
                     board.print_board();
                     continue;
                 }
                 board = board.undo();
-                board.change_player(&mut current_move);
+                current_move.player.change();
                 board.calculate_captures(black_pass_counter, white_pass_counter);
                 board.print_board();
                 continue;
@@ -100,7 +100,7 @@ fn main() {
 
         board.play(&current_move);
         board.calculate_captures(black_pass_counter, white_pass_counter);
-        board.change_player(&mut current_move);
+        current_move.player.change();
         board.print_board();
     }
 

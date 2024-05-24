@@ -541,7 +541,7 @@ mod tests {
             if board.move_is_valid(&current_move) {
                 test_move_history.push(current_move.clone());
                 board.play_if_move_is_valid(&current_move);
-                board.change_player(&mut current_move);
+                current_move.player.change();
                 moves_left -= 1;
             }
         }
@@ -579,7 +579,7 @@ mod tests {
                     board.fields[current_move.loc.row][current_move.loc.col],
                     Color::Empty
                 );
-                board.change_player(&mut current_move);
+                current_move.player.change();
 
                 println!();
                 moves_left -= 1;
