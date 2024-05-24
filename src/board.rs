@@ -258,14 +258,17 @@ impl Board {
     // TODO: Improve performance by checking if this group has already been added
     // Creates a set of potential points - "islands" of Color::Empty
     fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
-        let mut groups_of_potential_points: HashSet<Vec<Loc>> = HashSet::new();
+        let mut groups_of_empty: HashSet<Vec<Loc>> = HashSet::new();
         let all_loc = self.get_all_loc();
         for loc in all_loc {
             if self.get(loc) == Color::Empty {
-                groups_of_potential_points.insert(self.group_stones(loc));
+                // If the group of Locs contains current Loc, the group of this loc has already been added
+                if !groups_of_empty.iter().any(|group| group.contains(&loc)) {
+                    groups_of_empty.insert(self.group_stones(loc));
+                }
             }
         }
-        groups_of_potential_points
+        groups_of_empty
     }
 
     pub fn count_potential_points(&self, loc: Loc) -> (Color, usize) {
