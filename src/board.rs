@@ -191,13 +191,15 @@ impl Board {
         self.fields[loc.row][loc.col] = color;
     }
 
-    pub fn print_board(&self) {
+    pub fn to_string(&self) -> String {
+        let mut board_string = String::new();
         for row in &self.fields {
             for field in row {
-                print!("{} ", field.to_string());
+                board_string.push_str(&format!("{} ", field.to_string()));
             }
-            println!();
+            board_string += "\n";
         }
+        board_string
     }
 
     fn board_size(&self) -> (usize, usize) {

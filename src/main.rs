@@ -44,7 +44,7 @@ fn main() {
             "u" => {
                 board = board.undo();
                 current_move.player = current_move.player.change();
-                board.print_board();
+                println!("{}", board.to_string());
                 continue;
             }
             _ => match Loc::from_string(&player_input) {
@@ -58,13 +58,13 @@ fn main() {
 
         board.play(&current_move);
         current_move.player = current_move.player.change();
-        board.print_board();
+        println!("{}", board.to_string());
     }
 
     // Removing dead stones loop
     loop {
         println!("\nRemove dead stones or input 'r' to calculate the result:\n");
-        board.print_board();
+        println!("{}", board.to_string());
 
         let player_input = board::take_player_input();
         match player_input.as_str() {
