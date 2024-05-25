@@ -97,7 +97,12 @@ impl Loc {
     }
 
     fn is_on_board(&self, board_size: (usize, usize)) -> bool {
-        self.row < board_size.0 - 1 && self.col < board_size.1 - 1
+        let upper_edge_check = self.row > 0;
+        let lower_edge_check = self.row < board_size.0 - 1;
+        let left_edge_check = self.col > 0;
+        let right_edge_check = self.col < board_size.1 - 1;
+
+        upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
 
     fn coords(&self, rows: usize) -> String {
