@@ -219,8 +219,7 @@ impl Board {
     // Creates a set of potential points - "islands" of Color::Empty
     fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
         let mut groups_of_empty: HashSet<Vec<Loc>> = HashSet::new();
-        let all_loc = self.get_all_loc();
-        for loc in all_loc {
+        for loc in self.get_all_loc() {
             if self.get(loc) == Color::Empty {
                 // If the group of Locs contains current Loc, the group of this loc has already been added
                 if !groups_of_empty.iter().any(|group| group.contains(&loc)) {
