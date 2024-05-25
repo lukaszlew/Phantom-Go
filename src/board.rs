@@ -154,28 +154,6 @@ pub struct Board {
     pub komi: usize,
 }
 
-impl Default for Board {
-    fn default() -> Self {
-        // Initializing an empty boardą
-        let mut board = Board {
-            fields: vec![vec![Color::Empty; 15]; 15],
-            game_history: vec![],
-            komi: 2,
-        };
-        // Setting up sentinels in rows
-        for i in 0..15 {
-            board.fields[0][i] = Color::Invalid;
-            board.fields[14][i] = Color::Invalid;
-        }
-        // Setting up sentinels in columns
-        for i in 0..15 {
-            board.fields[i][0] = Color::Invalid;
-            board.fields[i][14] = Color::Invalid;
-        }
-        board
-    }
-}
-
 impl Board {
     pub fn new(rows: usize, cols: usize, komi: usize) -> Self {
         // Initializing an empty boardą
