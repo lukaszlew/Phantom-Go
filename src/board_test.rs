@@ -11,32 +11,32 @@ mod tests {
     #[test]
     fn stones_have_to_be_placed_on_empty_fields() {
         let mut board = Board::new(5, 5, 0.0);
-        assert_eq!(board.fields[1][1], Color::Empty);
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Empty);
         board.play(&Move {
             player: Player::Black,
             loc: Loc { row: 1, col: 1 },
         });
 
-        assert_eq!(board.fields[1][1], Color::Black);
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
         board.play(&Move {
             player: Player::White,
             loc: Loc { row: 1, col: 1 },
         });
 
-        assert_eq!(board.fields[1][1], Color::Black);
-        assert_eq!(board.fields[1][2], Color::Empty);
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
+        assert_eq!(board.get(Loc { row: 1, col: 2 }), Color::Empty);
         board.play(&Move {
             player: Player::White,
             loc: Loc { row: 1, col: 2 },
         });
-        assert_eq!(board.fields[1][1], Color::Black);
-        assert_eq!(board.fields[1][2], Color::White);
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
+        assert_eq!(board.get(Loc { row: 1, col: 2 }), Color::White);
         board.play(&Move {
             player: Player::Black,
             loc: Loc { row: 1, col: 2 },
         });
-        assert_eq!(board.fields[1][1], Color::Black);
-        assert_eq!(board.fields[1][2], Color::White);
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
+        assert_eq!(board.get(Loc { row: 1, col: 2 }), Color::White);
     }
 
     #[test]
@@ -373,32 +373,32 @@ mod tests {
         }
 
         board.remove_group(Loc { row: 1, col: 1 });
-        assert!(board.fields[1][1] == Color::Empty);
-        assert!(board.fields[1][2] == Color::Empty);
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 1, col: 2 }) == Color::Empty);
         board.remove_group(Loc { row: 5, col: 1 });
-        assert!(board.fields[4][1] == Color::Empty);
-        assert!(board.fields[5][1] == Color::Empty);
+        assert!(board.get(Loc { row: 4, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 5, col: 1 }) == Color::Empty);
         board.remove_group(Loc { row: 3, col: 4 });
-        assert!(board.fields[3][3] == Color::Empty);
-        assert!(board.fields[3][4] == Color::Empty);
-        assert!(board.fields[4][3] == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 3 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 4 }) == Color::Empty);
+        assert!(board.get(Loc { row: 4, col: 3 }) == Color::Empty);
         board.remove_group(Loc { row: 6, col: 7 });
-        assert!(board.fields[4][7] == Color::Empty);
-        assert!(board.fields[5][7] == Color::Empty);
-        assert!(board.fields[6][7] == Color::Empty);
+        assert!(board.get(Loc { row: 4, col: 7 }) == Color::Empty);
+        assert!(board.get(Loc { row: 5, col: 7 }) == Color::Empty);
+        assert!(board.get(Loc { row: 6, col: 7 }) == Color::Empty);
         board.remove_group(Loc { row: 3, col: 2 });
-        assert!(board.fields[2][2] == Color::Empty);
-        assert!(board.fields[3][1] == Color::Empty);
-        assert!(board.fields[3][2] == Color::Empty);
-        assert!(board.fields[4][2] == Color::Empty);
+        assert!(board.get(Loc { row: 2, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 4, col: 2 }) == Color::Empty);
         board.remove_group(Loc { row: 9, col: 1 });
-        assert!(board.fields[9][1] == Color::Empty);
+        assert!(board.get(Loc { row: 9, col: 1 }) == Color::Empty);
         board.remove_group(Loc { row: 7, col: 3 });
-        assert!(board.fields[6][2] == Color::Empty);
-        assert!(board.fields[6][3] == Color::Empty);
-        assert!(board.fields[7][2] == Color::Empty);
-        assert!(board.fields[7][3] == Color::Empty);
-        assert!(board.fields[8][2] == Color::Empty);
+        assert!(board.get(Loc { row: 6, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 6, col: 3 }) == Color::Empty);
+        assert!(board.get(Loc { row: 7, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 3 }) == Color::Empty);
+        assert!(board.get(Loc { row: 8, col: 2 }) == Color::Empty);
     }
 
     #[test]
@@ -485,11 +485,11 @@ mod tests {
                 });
                 if i + 1 == white_moves.len() {
                     for loc in &black_groups[group_index] {
-                        assert!(board.fields[loc.row][loc.col] == Color::Empty);
+                        assert!(board.get(*loc) == Color::Empty);
                     }
                 } else {
                     for loc in &black_groups[group_index] {
-                        assert!(board.fields[loc.row][loc.col] == Color::Black);
+                        assert!(board.get(*loc) == Color::Black);
                     }
                 }
             }
@@ -524,17 +524,11 @@ mod tests {
 
         for _ in 1..=6 {
             let last_move = test_move_history.pop().unwrap();
-            assert_ne!(
-                board.fields[last_move.clone().loc.row][last_move.clone().loc.col],
-                Color::Empty
-            );
+            assert_ne!(board.get(last_move.loc), Color::Empty);
 
             board = board.undo();
 
-            assert_eq!(
-                board.fields[last_move.clone().loc.row][last_move.clone().loc.col],
-                Color::Empty
-            );
+            assert_eq!(board.get(last_move.loc), Color::Empty);
         }
 
         moves_left = 6;
@@ -546,15 +540,9 @@ mod tests {
             current_move.loc = current_move_coords;
 
             if board.move_is_valid(&current_move) {
-                assert_eq!(
-                    board.fields[current_move.loc.row][current_move.clone().loc.col],
-                    Color::Empty
-                );
+                assert_eq!(board.get(current_move.loc), Color::Empty);
                 board.play_if_move_is_valid(&current_move);
-                assert_ne!(
-                    board.fields[current_move.loc.row][current_move.loc.col],
-                    Color::Empty
-                );
+                assert_ne!(board.get(current_move.loc), Color::Empty);
                 current_move.player = current_move.player.change();
 
                 println!();
@@ -612,9 +600,9 @@ mod tests {
 
         board = board.undo();
 
-        assert!(board.fields[1][1] == Color::Empty);
-        assert!(board.fields[2][1] == Color::Empty);
-        assert!(board.fields[3][1] == Color::White);
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 1 }) == Color::White);
     }
 
     #[test]
@@ -653,8 +641,8 @@ mod tests {
             loc: Loc { row: 2, col: 1 },
         });
 
-        assert!(board.fields[2][1] == Color::Empty);
-        assert!(board.fields[1][1] == Color::Black);
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Black);
 
         board.play_if_move_is_valid(&Move {
             player: Player::White,
@@ -673,8 +661,8 @@ mod tests {
             loc: Loc { row: 1, col: 1 },
         });
 
-        assert!(board.fields[1][1] == Color::Empty);
-        assert!(board.fields[2][1] == Color::White);
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::White);
 
         board.play_if_move_is_valid(&Move {
             player: Player::Black,
@@ -689,8 +677,8 @@ mod tests {
             loc: Loc { row: 1, col: 1 },
         });
 
-        assert!(board.fields[2][1] == Color::Empty);
-        assert!(board.fields[1][1] == Color::Black);
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Black);
     }
 
     #[test]

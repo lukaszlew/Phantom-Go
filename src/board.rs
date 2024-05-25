@@ -156,9 +156,9 @@ impl Move {
 
 #[derive(Clone, PartialEq)]
 pub struct Board {
-    pub fields: Vec<Vec<Color>>,
+    fields: Vec<Vec<Color>>,
     pub game_history: Vec<Move>,
-    pub komi: f32,
+    komi: f32,
     pub black_captures: isize,
     pub white_captures: isize,
     result: f32,
