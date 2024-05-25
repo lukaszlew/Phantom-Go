@@ -154,8 +154,6 @@ pub struct Board {
     pub komi: usize,
     pub black_captures: usize,
     pub white_captures: usize,
-    pub black_pass_cnt: usize,
-    pub white_pass_cnt: usize,
 }
 
 impl Board {
@@ -167,8 +165,6 @@ impl Board {
             komi,
             black_captures: 0,
             white_captures: 0,
-            black_pass_cnt: 0,
-            white_pass_cnt: 0,
         };
         // Setting up sentinels in rows
         for i in 0..cols {
@@ -280,9 +276,9 @@ impl Board {
         (black_points, white_points)
     }
 
-    pub fn count_score(&self, board_points: (usize, usize), captures: (usize, usize), komi: usize) {
+    pub fn count_score(&self, board_points: (usize, usize), captures: (usize, usize)) {
         let black_total_points: usize = board_points.0 + captures.0;
-        let white_total_points: usize = board_points.1 + captures.1 + komi;
+        let white_total_points: usize = board_points.1 + captures.1 + self.komi;
         let black_won = black_total_points > white_total_points;
         if black_won {
             println!(
@@ -416,17 +412,6 @@ impl Board {
             board_after_undo.play(mv);
         }
         board_after_undo
-    }
-
-    pub fn pass(&mut self, mv: &Move) {
-        match mv.player {
-            Player::Black => {
-                self.black_pass_cnt += 1;
-            }
-            Player::White => {
-                self.white_pass_cnt += 1;
-            }
-        }
     }
 }
 

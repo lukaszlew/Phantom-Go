@@ -78,4 +78,7 @@ fn main() {
             },
         }
     }
+    let board_points = board.count_board_points();
+    let captures = (board.black_captures, board.white_captures);
+    board.count_score(board_points, captures)
 }
