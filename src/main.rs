@@ -9,10 +9,6 @@ fn main() {
         player: Player::Black,
         loc: Loc { row: 0, col: 0 },
     };
-    let mut black_pass: bool = false;
-    let mut white_pass: bool = false;
-    let mut black_pass_counter: usize = 0;
-    let mut white_pass_counter: usize = 0;
 
     // Game loop
     loop {
@@ -46,13 +42,7 @@ fn main() {
 
                 board.game_history.push(pass);
 
-                current_move.pass(
-                    &mut black_pass,
-                    &mut black_pass_counter,
-                    &mut white_pass,
-                    &mut white_pass_counter,
-                );
-                board.calculate_captures(black_pass_counter, white_pass_counter);
+                board.pass(&current_move);
                 board.print_board();
 
                 current_move.player.change();
@@ -63,18 +53,7 @@ fn main() {
                 continue;
             }
             "u" => {
-                if black_pass || white_pass {
-                    match current_move.player {
-                        Player::Black => white_pass_counter -= 1,
-                        Player::White => black_pass_counter -= 1,
-                    }
-                    current_move.player.change();
-                    board.print_board();
-                    continue;
-                }
                 board = board.undo();
-                current_move.player.change();
-                board.calculate_captures(black_pass_counter, white_pass_counter);
                 board.print_board();
                 continue;
             }
@@ -87,16 +66,12 @@ fn main() {
             },
         }
 
-        black_pass = false;
-        white_pass = false;
-
         if !board.move_is_valid(&current_move) {
             println!("\nInvalid move :c\nT R Y  A G A I N !\n");
             continue;
         }
 
         board.play(&current_move);
-        board.calculate_captures(black_pass_counter, white_pass_counter);
         current_move.player.change();
         board.print_board();
     }
@@ -118,8 +93,4 @@ fn main() {
             },
         }
     }
-
-    let captures = board.calculate_captures(black_pass_counter, white_pass_counter);
-    let board_points = board.count_board_points();
-    board.count_score(board_points, captures, board.komi);
 }

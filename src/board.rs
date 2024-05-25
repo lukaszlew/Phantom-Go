@@ -126,32 +126,15 @@ pub struct Move {
     pub loc: Loc,
 }
 
-impl Move {
-    pub fn pass(
-        &self,
-        black_pass: &mut bool,
-        black_pass_cnt: &mut usize,
-        white_pass: &mut bool,
-        white_pass_cnt: &mut usize,
-    ) {
-        match self.player {
-            Player::Black => {
-                *black_pass = true;
-                *black_pass_cnt += 1;
-            }
-            Player::White => {
-                *white_pass = true;
-                *white_pass_cnt += 1;
-            }
-        }
-    }
-}
-
 #[derive(Clone, PartialEq)]
 pub struct Board {
     pub fields: Vec<Vec<Color>>,
     pub game_history: Vec<Move>,
     pub komi: usize,
+    black_captures: usize,
+    white_captures: usize,
+    black_pass_cnt: usize,
+    white_pass_cnt: usize,
 }
 
 impl Board {
@@ -161,6 +144,10 @@ impl Board {
             fields: vec![vec![Color::Empty; cols]; rows],
             game_history: vec![],
             komi,
+            black_captures: 0,
+            white_captures: 0,
+            black_pass_cnt: 0,
+            white_pass_cnt: 0,
         };
         // Setting up sentinels in rows
         for i in 0..cols {
@@ -209,26 +196,6 @@ impl Board {
             }
         }
         (black, white)
-    }
-
-    pub fn calculate_captures(
-        &self,
-        black_pass_counter: usize,
-        white_pass_counter: usize,
-    ) -> (usize, usize) {
-        let number_of_moves: usize =
-            self.game_history.len() + black_pass_counter + white_pass_counter;
-        let expected_black_stones: usize =
-            number_of_moves / 2 + number_of_moves % 2 - black_pass_counter;
-        let expected_white_stones: usize = number_of_moves / 2 - white_pass_counter;
-        let (black_stones, white_stones) = self.count_stones();
-        let black_captures = expected_white_stones - white_stones;
-        let white_captures = expected_black_stones - black_stones;
-        println!(
-            "Black captured {:?} stones,\nwhite captured {:?} stones\n",
-            black_captures, white_captures
-        );
-        (black_captures, white_captures)
     }
 
     fn get_all_loc(&self) -> Vec<Loc> {
@@ -431,6 +398,17 @@ impl Board {
             board_after_undo.play(mv);
         }
         board_after_undo
+    }
+
+    pub fn pass(&mut self, mv: &Move) {
+        match mv.player {
+            Player::Black => {
+                self.black_pass_cnt += 1;
+            }
+            Player::White => {
+                self.white_pass_cnt += 1;
+            }
+        }
     }
 }
 

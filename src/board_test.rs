@@ -1,27 +1,3 @@
-use crate::board::Loc;
-use crate::board::Move;
-use crate::board::Player;
-
-pub fn run_tests() {
-    // TODO: tests for passing will be different, because of the possible architecture change
-    println!("\n\nTests for passing:\n");
-    let mut black_pass = false;
-    let mut white_pass = false;
-    let mut mv = Move {
-        player: Player::Black,
-        loc: Loc::from_string("3, 3").expect("Failed to create Loc from string"),
-    };
-    assert!(black_pass == false);
-    assert!(white_pass == false);
-    mv.pass(&mut black_pass, &mut 0, &mut white_pass, &mut 0);
-    assert!(black_pass == true);
-    assert!(white_pass == false);
-    mv.player = Player::White;
-    mv.pass(&mut black_pass, &mut 0, &mut white_pass, &mut 0);
-    assert!(black_pass == true);
-    assert!(white_pass == true);
-}
-
 #[cfg(test)]
 mod tests {
     use rand::Rng;
