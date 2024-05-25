@@ -152,10 +152,10 @@ pub struct Board {
     pub fields: Vec<Vec<Color>>,
     pub game_history: Vec<Move>,
     pub komi: usize,
-    black_captures: usize,
-    white_captures: usize,
-    black_pass_cnt: usize,
-    white_pass_cnt: usize,
+    pub black_captures: usize,
+    pub white_captures: usize,
+    pub black_pass_cnt: usize,
+    pub white_pass_cnt: usize,
 }
 
 impl Board {
@@ -398,6 +398,12 @@ impl Board {
 
     pub fn remove_group(&mut self, loc: Loc) {
         let group = self.group_stones(loc);
+        let stone_count = group.len();
+        match self.get(loc) {
+            Color::White => self.black_captures += stone_count,
+            Color::Black => self.white_captures += stone_count,
+            _ => (),
+        }
         for stone in group {
             self.set(stone, Color::Empty);
         }
