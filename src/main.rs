@@ -45,7 +45,7 @@ fn main() {
                 board.pass(&current_move);
                 board.print_board();
 
-                current_move.player.change();
+                current_move.player = current_move.player.change();
                 continue;
             }
             "gh" => {
@@ -72,7 +72,7 @@ fn main() {
         }
 
         board.play(&current_move);
-        current_move.player.change();
+        current_move.player = current_move.player.change();
         board.print_board();
     }
 

@@ -162,6 +162,10 @@ impl Board {
         board
     }
 
+    pub fn reset(&self) -> Self {
+        Board::new(self.fields.len(), self.fields[0].len(), self.komi)
+    }
+
     pub fn get(&self, loc: Loc) -> Color {
         self.fields[loc.row][loc.col]
     }
@@ -306,8 +310,7 @@ impl Board {
 
         let mut gh_copy = self.game_history.clone();
         gh_copy.pop();
-        let mut board_from_2_moves_ago =
-            Board::new(self.fields.len(), self.fields[0].len(), self.komi);
+        let mut board_from_2_moves_ago = self.reset();
         for mv in gh_copy {
             board_from_2_moves_ago.play(&mv);
         }
