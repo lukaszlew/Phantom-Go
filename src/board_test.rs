@@ -10,7 +10,7 @@ mod tests {
 
     #[test]
     fn stones_have_to_be_placed_on_empty_fields() {
-        let mut board = Board::new(5, 5, 0);
+        let mut board = Board::new(5, 5, 0.0);
         assert_eq!(board.fields[1][1], Color::Empty);
         board.play(&Move {
             player: Player::Black,
@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn stones_are_grouped_correctly() {
-        let mut board = Board::new(11, 11, 2);
+        let mut board = Board::new(11, 11, 2.0);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -252,7 +252,7 @@ mod tests {
 
     #[test]
     fn liberties_are_calculated_correctly() {
-        let mut board = Board::new(11, 11, 2);
+        let mut board = Board::new(11, 11, 2.0);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -324,7 +324,7 @@ mod tests {
 
     #[test]
     fn groups_are_removed_correctly() {
-        let mut board = Board::new(11, 11, 2);
+        let mut board = Board::new(11, 11, 2.0);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -403,7 +403,7 @@ mod tests {
 
     #[test]
     fn groups_removal_is_triggered_when_their_liberties_reach_0() {
-        let mut board = Board::new(11, 11, 2);
+        let mut board = Board::new(11, 11, 2.0);
 
         let black_groups: Vec<Vec<Loc>> = vec![
             // Group 1
@@ -505,7 +505,7 @@ mod tests {
             loc: Loc { row: 0, col: 0 },
         };
 
-        let mut board = Board::new(7, 7, 2);
+        let mut board = Board::new(7, 7, 2.0);
         let mut moves_left = 10;
 
         while moves_left > 0 {
@@ -565,7 +565,7 @@ mod tests {
 
     #[test]
     fn undo_restores_both_groups_that_were_captured_by_the_undone_move() {
-        let mut board = Board::new(7, 5, 2);
+        let mut board = Board::new(7, 5, 2.0);
 
         let moves = [
             Move {
@@ -619,7 +619,7 @@ mod tests {
 
     #[test]
     fn board_position_cannot_be_repeated() {
-        let mut board = Board::new(6, 5, 2);
+        let mut board = Board::new(6, 5, 2.0);
 
         let moves = [
             Move {
@@ -695,7 +695,7 @@ mod tests {
 
     #[test]
     fn each_group_points_are_counted_correctly() {
-        let mut board = Board::new(8, 8, 0);
+        let mut board = Board::new(8, 8, 0.0);
         let black_groups = [
             Loc { row: 1, col: 2 },
             Loc { row: 1, col: 3 },
@@ -782,7 +782,7 @@ mod tests {
 
     #[test]
     fn board_points_are_counted_correctly() {
-        let mut board = Board::new(8, 8, 0);
+        let mut board = Board::new(8, 8, 0.0);
         let black_groups = [
             Loc { row: 1, col: 2 },
             Loc { row: 1, col: 3 },
@@ -847,7 +847,7 @@ mod tests {
     }
     #[test]
     fn counting_captures() {
-        let mut board = Board::new(8, 8, 0);
+        let mut board = Board::new(8, 8, 0.0);
 
         let black_groups = [
             // Capture 1

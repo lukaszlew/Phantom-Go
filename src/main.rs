@@ -4,7 +4,7 @@ pub mod board;
 pub mod board_test;
 
 fn main() {
-    let mut board = Board::new(7, 7, 2);
+    let mut board = Board::new(7, 7, 0.0);
     let mut current_move = Move {
         player: Player::Black,
         loc: Loc { row: 0, col: 0 },
@@ -78,7 +78,5 @@ fn main() {
             },
         }
     }
-    let board_points = board.count_board_points();
-    let captures = (board.black_captures, board.white_captures);
-    board.count_score(board_points, captures)
+    board.print_result();
 }

@@ -26,6 +26,13 @@ pub enum Player {
     Black,
 }
 
+#[derive(Debug)]
+pub enum Winner {
+    White,
+    Black,
+    Draw,
+}
+
 impl Player {
     pub fn to_color(&self) -> Color {
         match self {
@@ -151,13 +158,14 @@ impl Move {
 pub struct Board {
     pub fields: Vec<Vec<Color>>,
     pub game_history: Vec<Move>,
-    pub komi: isize,
+    pub komi: f32,
     pub black_captures: isize,
     pub white_captures: isize,
+    result: f32,
 }
 
 impl Board {
-    pub fn new(rows: usize, cols: usize, komi: isize) -> Self {
+    pub fn new(rows: usize, cols: usize, komi: f32) -> Self {
         // Initializing an empty board
         let mut board = Board {
             fields: vec![vec![Color::Empty; cols]; rows],
@@ -165,6 +173,7 @@ impl Board {
             komi,
             black_captures: 0,
             white_captures: 0,
+            result: 0.0,
         };
         // Setting up sentinels in rows
         for i in 0..cols {
@@ -279,20 +288,32 @@ impl Board {
         (black_points, white_points)
     }
 
-    pub fn count_score(&self, board_points: (isize, isize), captures: (isize, isize)) {
-        let black_total_points: isize = board_points.0 + captures.0;
-        let white_total_points: isize = board_points.1 + captures.1 + self.komi;
+    pub fn count_score(&self) -> (Winner, f32) {
+        let all_points = self.count_board_points();
+        let black_total_points: f32 = all_points.0 as f32 + self.black_captures as f32;
+        let white_total_points: f32 = all_points.1 as f32 + self.white_captures as f32 + self.komi;
+
+        if black_total_points - white_total_points == 0.0 {
+            return (Winner::Draw, 0.0);
+        }
+
         let black_won = black_total_points > white_total_points;
+        let result: (Winner, f32);
+
         if black_won {
-            println!(
-                "Black won by: {}.5",
-                black_total_points - white_total_points - 1
-            );
+            result = (Winner::Black, black_total_points - white_total_points);
         } else {
-            println!(
-                "White won by: {}.5",
-                white_total_points - black_total_points
-            );
+            result = (Winner::White, white_total_points - black_total_points)
+        }
+
+        result
+    }
+
+    pub fn print_result(&self) {
+        let score = self.count_score();
+        match score.0 {
+            Winner::Draw => println!("\nD R A W !"),
+            _ => println!("{:?} won by {:?}!", score.0, score.1),
         }
     }
 
