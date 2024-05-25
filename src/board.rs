@@ -151,14 +151,14 @@ impl Move {
 pub struct Board {
     pub fields: Vec<Vec<Color>>,
     pub game_history: Vec<Move>,
-    pub komi: usize,
-    pub black_captures: usize,
-    pub white_captures: usize,
+    pub komi: isize,
+    pub black_captures: isize,
+    pub white_captures: isize,
 }
 
 impl Board {
-    pub fn new(rows: usize, cols: usize, komi: usize) -> Self {
-        // Initializing an empty boardą
+    pub fn new(rows: usize, cols: usize, komi: isize) -> Self {
+        // Initializing an empty board
         let mut board = Board {
             fields: vec![vec![Color::Empty; cols]; rows],
             game_history: vec![],
@@ -229,7 +229,7 @@ impl Board {
         groups_of_empty
     }
 
-    pub fn count_potential_points(&self, loc: Loc) -> (Color, usize) {
+    pub fn count_potential_points(&self, loc: Loc) -> (Color, isize) {
         if self.get(loc) != Color::Empty {
             return (Color::Invalid, 0);
         }
@@ -243,27 +243,28 @@ impl Board {
             bordering_colors.len() == 1 && bordering_colors.contains(&Color::Invalid);
         let potential_points_are_dame = potential_points_border_both_colors || board_is_empty;
 
-        let mut points: (Color, usize) = (Color::Empty, 0);
+        let mut player_and_points: (Color, isize) = (Color::Empty, 0);
 
         if !potential_points_are_dame {
+            let points: isize = group.len().try_into().unwrap();
             if bordering_colors.contains(&Color::Black) {
-                points = (Color::Black, group.len());
+                player_and_points = (Color::Black, points);
             }
             if bordering_colors.contains(&Color::White) {
-                points = (Color::White, group.len());
+                player_and_points = (Color::White, points);
             }
         }
 
-        points
+        player_and_points
     }
 
     // Grouping empty "islands" and checking bordering Colors to decide which Color the points belong
-    pub fn count_board_points(&self) -> (usize, usize) {
+    pub fn count_board_points(&self) -> (isize, isize) {
         // Populating the HashSet of Empty "islands"
         let groups_of_potential_points = self.create_set_of_potential_points();
 
-        let mut white_points: usize = 0;
-        let mut black_points: usize = 0;
+        let mut white_points: isize = 0;
+        let mut black_points: isize = 0;
 
         for potential_points in groups_of_potential_points {
             let color_and_points = self.count_potential_points(potential_points[0]);
@@ -278,9 +279,9 @@ impl Board {
         (black_points, white_points)
     }
 
-    pub fn count_score(&self, board_points: (usize, usize), captures: (usize, usize)) {
-        let black_total_points: usize = board_points.0 + captures.0;
-        let white_total_points: usize = board_points.1 + captures.1 + self.komi;
+    pub fn count_score(&self, board_points: (isize, isize), captures: (isize, isize)) {
+        let black_total_points: isize = board_points.0 + captures.0;
+        let white_total_points: isize = board_points.1 + captures.1 + self.komi;
         let black_won = black_total_points > white_total_points;
         if black_won {
             println!(
@@ -397,7 +398,7 @@ impl Board {
 
     pub fn remove_group(&mut self, loc: Loc) {
         let group = self.group_stones(loc);
-        let stone_count = group.len();
+        let stone_count: isize = group.len().try_into().unwrap();
         match self.get(loc) {
             Color::White => self.black_captures += stone_count,
             Color::Black => self.white_captures += stone_count,
