@@ -517,7 +517,7 @@ mod tests {
             if board.move_is_valid(&current_move) {
                 test_move_history.push(current_move.clone());
                 board.play_if_move_is_valid(&current_move);
-                current_move.player.change();
+                current_move.player = current_move.player.change();
                 moves_left -= 1;
             }
         }
@@ -555,7 +555,7 @@ mod tests {
                     board.fields[current_move.loc.row][current_move.loc.col],
                     Color::Empty
                 );
-                current_move.player.change();
+                current_move.player = current_move.player.change();
 
                 println!();
                 moves_left -= 1;
@@ -823,5 +823,26 @@ mod tests {
         }
 
         assert_eq!(board.count_board_points(), (3, 8));
+    }
+
+    #[test]
+    fn passing_works() {
+        let mut current_move = Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        };
+        let expected_move = current_move.clone();
+        assert_eq!(current_move, expected_move);
+
+        current_move = current_move.pass();
+        assert!(current_move.is_pass());
+
+        current_move = Move {
+            player: Player::White,
+            loc: Loc { row: 5, col: 3 },
+        };
+
+        current_move = current_move.pass();
+        assert!(current_move.is_pass());
     }
 }

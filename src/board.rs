@@ -20,7 +20,7 @@ impl Color {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Player {
     White,
     Black,
@@ -34,7 +34,7 @@ impl Player {
         }
     }
 
-    pub fn change(&mut self) -> Self {
+    pub fn change(self) -> Self {
         match self {
             Player::Black => Player::White,
             Player::White => Player::Black,
@@ -125,10 +125,26 @@ impl Loc {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Move {
     pub player: Player,
     pub loc: Loc,
+}
+
+impl Move {
+    pub fn pass(self) -> Self {
+        Move {
+            player: self.player,
+            loc: Loc { row: 99, col: 99 },
+        }
+    }
+
+    pub fn is_pass(&self) -> bool {
+        match self.loc {
+            Loc { row: 99, col: 99 } => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Clone, PartialEq)]
@@ -190,21 +206,6 @@ impl Board {
 
     fn board_size(&self) -> (usize, usize) {
         (self.fields.len(), self.fields[0].len())
-    }
-
-    fn count_stones(&self) -> (usize, usize) {
-        let mut black: usize = 0;
-        let mut white: usize = 0;
-        for row in &self.fields {
-            for field in row {
-                if *field == Color::White {
-                    white += 1;
-                } else if *field == Color::Black {
-                    black += 1;
-                }
-            }
-        }
-        (black, white)
     }
 
     fn get_all_loc(&self) -> Vec<Loc> {
@@ -326,6 +327,10 @@ impl Board {
     }
 
     pub fn play(&mut self, mv: &Move) {
+        if mv.is_pass() {
+            self.game_history.push(mv.clone());
+            return;
+        }
         if self.get(mv.loc) == Color::Empty {
             self.set(mv.loc, mv.player.to_color());
         }
