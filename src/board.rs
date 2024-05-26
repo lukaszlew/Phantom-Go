@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::io;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Color {
+enum Color {
     White,
     Black,
     Empty,
@@ -27,21 +27,21 @@ pub enum Player {
 }
 
 #[derive(Debug)]
-pub enum Winner {
+enum Winner {
     White,
     Black,
     Draw,
 }
 
 impl Player {
-    pub fn to_color(&self) -> Color {
+    fn to_color(&self) -> Color {
         match self {
             Player::Black => Color::Black,
             Player::White => Color::White,
         }
     }
 
-    pub fn change(self) -> Self { 
+    pub fn change(self) -> Self {
         match self {
             Player::Black => Player::White,
             Player::White => Player::Black,
@@ -56,28 +56,28 @@ pub struct Loc {
 }
 
 impl Loc {
-    pub fn up(&self) -> Self {
+    fn up(&self) -> Self {
         Loc {
             row: self.row - 1,
             col: self.col,
         }
     }
 
-    pub fn down(&self) -> Self {
+    fn down(&self) -> Self {
         Loc {
             row: self.row + 1,
             col: self.col,
         }
     }
 
-    pub fn left(&self) -> Self {
+    fn left(&self) -> Self {
         Loc {
             row: self.row,
             col: self.col - 1,
         }
     }
 
-    pub fn right(&self) -> Self {
+    fn right(&self) -> Self {
         Loc {
             row: self.row,
             col: self.col + 1,
@@ -85,8 +85,8 @@ impl Loc {
     }
 
     pub fn from_string(s: &str) -> Option<Self> {
-        let mut loc = Loc { row: 0, col: 0 };  // TODO evil style. Remove this line.
-        // if input doesn't have a comma - definitely invalid
+        let mut loc = Loc { row: 0, col: 0 }; // TODO evil style. Remove this line.
+                                              // if input doesn't have a comma - definitely invalid
         if !s.contains(",") {
             return None;
         }
@@ -112,15 +112,8 @@ impl Loc {
         upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
 
-    fn coords(&self, rows: usize) -> String {  // TODO: del unused code.
-        let col = "ABCDEFGHJKLMNOPQRST";
-        let row = rows - self.row;
-        let col = col.chars().nth(self.col).unwrap();
-        return format!("{}{}", col, row);
-    }
-
     // Checking borders for each "island"
-    fn get_bordering_colors(&self, island: &Vec<Loc>, board: &Board) -> HashSet<Color> {  
+    fn get_bordering_colors(&self, island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
         // TODO: Bad style, Loc should not need to know about Board. Move to Board.
         //   self is not even used :D
         let mut bordering_colors: HashSet<Color> = HashSet::new();
@@ -162,8 +155,8 @@ pub struct Board {
     // TODO: work towards making ALL field private
     pub game_history: Vec<Move>,
     komi: f32,
-    pub black_captures: isize,
-    pub white_captures: isize,
+    black_captures: isize,
+    white_captures: isize,
     result: f32,
 }
 
@@ -191,11 +184,11 @@ impl Board {
         board
     }
 
-    pub fn reset(&self) -> Self {
+    fn reset(&self) -> Self {
         Board::new(self.fields.len(), self.fields[0].len(), self.komi)
     }
 
-    pub fn get(&self, loc: Loc) -> Color {
+    fn get(&self, loc: Loc) -> Color {
         self.fields[loc.row][loc.col]
     }
 
@@ -218,7 +211,8 @@ impl Board {
         (self.fields.len(), self.fields[0].len())
     }
 
-    fn get_all_loc(&self) -> Vec<Loc> {  // TODO: Loc.all((usize, usize)) -> Vec<Loc>
+    fn get_all_loc(&self) -> Vec<Loc> {
+        // TODO: Loc.all((usize, usize)) -> Vec<Loc>
         let mut all_loc: Vec<Loc> = vec![];
         for (i, row) in self.fields.iter().enumerate() {
             for j in 0..row.len() {
@@ -227,9 +221,9 @@ impl Board {
         }
         all_loc
     }
-    
+
     // Creates a set of potential points - "islands" of Color::Empty
-    // TODO: comments often suggest renaming. E.g., 
+    // TODO: comments often suggest renaming. E.g.,
     // Lingo "island" - set of locs of empty fields ...
     // empty_islands(&self) -> HashSet<Vec<Loc>>
     fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
@@ -246,8 +240,7 @@ impl Board {
         groups_of_empty
     }
 
-    // TODO: Not pub!
-    pub fn count_potential_points(&self, loc: Loc) -> (Color, isize) {
+    fn count_potential_points(&self, loc: Loc) -> (Color, isize) {
         if self.get(loc) != Color::Empty {
             return (Color::Invalid, 0);
         }
@@ -277,7 +270,7 @@ impl Board {
     }
 
     // Grouping empty "islands" and checking bordering Colors to decide which Color the points belong
-    pub fn count_board_points(&self) -> (isize, isize) {
+    fn count_board_points(&self) -> (isize, isize) {
         // Populating the HashSet of Empty "islands"
         let groups_of_potential_points = self.create_set_of_potential_points();
 
@@ -297,7 +290,7 @@ impl Board {
         (black_points, white_points)
     }
 
-    pub fn count_score(&self) -> (Winner, f32) {
+    fn count_score(&self) -> (Winner, f32) {
         let all_points = self.count_board_points();
         let black_total_points: f32 = all_points.0 as f32 + self.black_captures as f32;
         let white_total_points: f32 = all_points.1 as f32 + self.white_captures as f32 + self.komi;
@@ -326,11 +319,13 @@ impl Board {
         }
     }
 
-    pub fn board_position_is_reapeated(&self, board: Board) -> bool {
+    #[allow(dead_code)]
+    fn board_position_is_reapated(&self, board: Board) -> bool {
         self.fields == board.fields
     }
 
-    pub fn move_is_valid(&self, mv: &Move) -> bool {
+    #[allow(dead_code)]
+    fn move_is_valid(&self, mv: &Move) -> bool {
         let board_size = self.board_size();
         if !mv.loc.is_on_board(board_size) {
             return false;
@@ -350,7 +345,7 @@ impl Board {
         }
         // If the group has been removed after the move, it was a suicidcal move
         let move_is_suicidal = potential_board.get(mv.loc) == Color::Empty;
-        let board_is_repeated = board_from_2_moves_ago.board_position_is_reapeated(potential_board);
+        let board_is_repeated = board_from_2_moves_ago.board_position_is_reapated(potential_board);
 
         !move_is_suicidal && !board_is_repeated
     }
@@ -364,7 +359,7 @@ impl Board {
             self.set(mv.loc, mv.player.to_color());
         }
         // Remove dead groups
-        pub fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
+        fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
             let color = board.get(loc);
             if color != Color::Invalid && color != Color::Empty && board.count_liberties(loc) == 0 {
                 board.remove_group(loc);
@@ -378,13 +373,14 @@ impl Board {
         self.game_history.push(mv.clone());
     }
 
-    pub fn play_if_move_is_valid(&mut self, mv: &Move) {
+    #[allow(dead_code)]
+    fn play_if_move_is_valid(&mut self, mv: &Move) {
         if self.move_is_valid(mv) {
             self.play(mv);
         }
     }
 
-    pub fn group_stones(&self, loc: Loc) -> Vec<Loc> {
+    fn group_stones(&self, loc: Loc) -> Vec<Loc> {
         let mut group_stones_coordinates: Vec<Loc> = vec![];
         let color = self.fields[loc.row][loc.col];
         self.flood_fill(loc, color, &mut group_stones_coordinates);
@@ -408,7 +404,7 @@ impl Board {
         self.flood_fill(loc.right(), color, visited);
     }
 
-    pub fn count_liberties(&self, loc: Loc) -> usize {
+    fn count_liberties(&self, loc: Loc) -> usize {
         let group = self.group_stones(loc);
         let mut liberties: HashSet<Loc> = HashSet::new();
         fn get_check_empty_insert_combo(board: &Board, loc: Loc, liberties: &mut HashSet<Loc>) {
@@ -456,4 +452,918 @@ pub fn take_player_input() -> String {
         .expect("Failed to read input");
     player_input = player_input.trim().to_string();
     player_input
+}
+
+#[cfg(test)]
+mod tests {
+    use rand::Rng;
+
+    use crate::board::Board;
+    use crate::board::Color;
+    use crate::board::Loc;
+    use crate::board::Move;
+    use crate::board::Player;
+
+    #[test]
+    fn stones_have_to_be_placed_on_empty_fields() {
+        let mut board = Board::new(5, 5, 0.0);
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Empty);
+        board.play(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        });
+
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
+        board.play(&Move {
+            player: Player::White,
+            loc: Loc { row: 1, col: 1 },
+        });
+
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
+        assert_eq!(board.get(Loc { row: 1, col: 2 }), Color::Empty);
+        board.play(&Move {
+            player: Player::White,
+            loc: Loc { row: 1, col: 2 },
+        });
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
+        assert_eq!(board.get(Loc { row: 1, col: 2 }), Color::White);
+        board.play(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 2 },
+        });
+        assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Black);
+        assert_eq!(board.get(Loc { row: 1, col: 2 }), Color::White);
+    }
+
+    #[test]
+    fn stones_are_grouped_correctly() {
+        let mut board = Board::new(11, 11, 2.0);
+
+        let black_groups: Vec<Loc> = vec![
+            // Group 1
+            Loc::from_string("1, 1").expect("Failed to create Loc from string"),
+            Loc { row: 1, col: 2 },
+            // Group 2
+            Loc { row: 4, col: 1 },
+            Loc { row: 5, col: 1 },
+            // Group 3
+            Loc { row: 3, col: 3 },
+            Loc { row: 3, col: 4 },
+            Loc { row: 4, col: 3 },
+            // Group 4
+            Loc { row: 4, col: 7 },
+            Loc { row: 5, col: 7 },
+            Loc { row: 6, col: 7 },
+        ];
+        let white_groups: Vec<Loc> = vec![
+            // Group 5
+            Loc { row: 2, col: 2 },
+            Loc { row: 3, col: 1 },
+            Loc { row: 3, col: 2 },
+            Loc { row: 4, col: 2 },
+            // Group 6
+            Loc { row: 9, col: 1 },
+            // Group 7
+            Loc { row: 6, col: 2 },
+            Loc { row: 6, col: 3 },
+            Loc { row: 7, col: 2 },
+            Loc { row: 7, col: 3 },
+            Loc { row: 8, col: 2 },
+        ];
+
+        for mv in black_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::Black,
+                loc: mv,
+            })
+        }
+
+        for mv in white_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::White,
+                loc: mv,
+            })
+        }
+
+        let group1_a = board.group_stones(Loc { row: 1, col: 1 });
+        let group1_b = board.group_stones(Loc { row: 1, col: 2 });
+        let group2_a = board.group_stones(Loc { row: 4, col: 1 });
+        let group2_b = board.group_stones(Loc { row: 5, col: 1 });
+        let group3_a = board.group_stones(Loc { row: 3, col: 3 });
+        let group3_b = board.group_stones(Loc { row: 3, col: 4 });
+        let group3_c = board.group_stones(Loc { row: 4, col: 3 });
+        let group4_a = board.group_stones(Loc { row: 4, col: 7 });
+        let group4_b = board.group_stones(Loc { row: 5, col: 7 });
+        let group4_c = board.group_stones(Loc { row: 6, col: 7 });
+        let group5_a = board.group_stones(Loc { row: 2, col: 2 });
+        let group5_b = board.group_stones(Loc { row: 3, col: 1 });
+        let group5_c = board.group_stones(Loc { row: 3, col: 2 });
+        let group5_d = board.group_stones(Loc { row: 4, col: 2 });
+        let group6 = board.group_stones(Loc { row: 9, col: 1 });
+        let group7_a = board.group_stones(Loc { row: 6, col: 2 });
+        let group7_b = board.group_stones(Loc { row: 6, col: 3 });
+        let group7_c = board.group_stones(Loc { row: 7, col: 2 });
+        let group7_d = board.group_stones(Loc { row: 7, col: 3 });
+        let group7_e = board.group_stones(Loc { row: 8, col: 2 });
+        assert!(group1_a == [Loc { row: 1, col: 1 }, Loc { row: 1, col: 2 }]);
+        assert!(group1_b == [Loc { row: 1, col: 1 }, Loc { row: 1, col: 2 }]);
+        assert!(group2_a == [Loc { row: 4, col: 1 }, Loc { row: 5, col: 1 }]);
+        assert!(group2_b == [Loc { row: 4, col: 1 }, Loc { row: 5, col: 1 }]);
+        assert!(
+            group3_a
+                == [
+                    Loc { row: 3, col: 3 },
+                    Loc { row: 3, col: 4 },
+                    Loc { row: 4, col: 3 }
+                ]
+        );
+        assert!(
+            group3_b
+                == [
+                    Loc { row: 3, col: 3 },
+                    Loc { row: 3, col: 4 },
+                    Loc { row: 4, col: 3 }
+                ]
+        );
+        assert!(
+            group3_c
+                == [
+                    Loc { row: 3, col: 3 },
+                    Loc { row: 3, col: 4 },
+                    Loc { row: 4, col: 3 }
+                ]
+        );
+        assert!(
+            group4_a
+                == [
+                    Loc { row: 4, col: 7 },
+                    Loc { row: 5, col: 7 },
+                    Loc { row: 6, col: 7 }
+                ]
+        );
+        assert!(
+            group4_b
+                == [
+                    Loc { row: 4, col: 7 },
+                    Loc { row: 5, col: 7 },
+                    Loc { row: 6, col: 7 }
+                ]
+        );
+        assert!(
+            group4_c
+                == [
+                    Loc { row: 4, col: 7 },
+                    Loc { row: 5, col: 7 },
+                    Loc { row: 6, col: 7 }
+                ]
+        );
+        assert!(
+            group5_a
+                == [
+                    Loc { row: 2, col: 2 },
+                    Loc { row: 3, col: 1 },
+                    Loc { row: 3, col: 2 },
+                    Loc { row: 4, col: 2 }
+                ]
+        );
+        assert!(
+            group5_b
+                == [
+                    Loc { row: 2, col: 2 },
+                    Loc { row: 3, col: 1 },
+                    Loc { row: 3, col: 2 },
+                    Loc { row: 4, col: 2 }
+                ]
+        );
+        assert!(
+            group5_c
+                == [
+                    Loc { row: 2, col: 2 },
+                    Loc { row: 3, col: 1 },
+                    Loc { row: 3, col: 2 },
+                    Loc { row: 4, col: 2 }
+                ]
+        );
+        assert!(
+            group5_d
+                == [
+                    Loc { row: 2, col: 2 },
+                    Loc { row: 3, col: 1 },
+                    Loc { row: 3, col: 2 },
+                    Loc { row: 4, col: 2 }
+                ]
+        );
+        assert!(group6 == [Loc { row: 9, col: 1 }]);
+        assert!(
+            group7_a
+                == [
+                    Loc { row: 6, col: 2 },
+                    Loc { row: 6, col: 3 },
+                    Loc { row: 7, col: 2 },
+                    Loc { row: 7, col: 3 },
+                    Loc { row: 8, col: 2 }
+                ]
+        );
+        assert!(
+            group7_b
+                == [
+                    Loc { row: 6, col: 2 },
+                    Loc { row: 6, col: 3 },
+                    Loc { row: 7, col: 2 },
+                    Loc { row: 7, col: 3 },
+                    Loc { row: 8, col: 2 }
+                ]
+        );
+        assert!(
+            group7_c
+                == [
+                    Loc { row: 6, col: 2 },
+                    Loc { row: 6, col: 3 },
+                    Loc { row: 7, col: 2 },
+                    Loc { row: 7, col: 3 },
+                    Loc { row: 8, col: 2 }
+                ]
+        );
+        assert!(
+            group7_d
+                == [
+                    Loc { row: 6, col: 2 },
+                    Loc { row: 6, col: 3 },
+                    Loc { row: 7, col: 2 },
+                    Loc { row: 7, col: 3 },
+                    Loc { row: 8, col: 2 }
+                ]
+        );
+        assert!(
+            group7_e
+                == [
+                    Loc { row: 6, col: 2 },
+                    Loc { row: 6, col: 3 },
+                    Loc { row: 7, col: 2 },
+                    Loc { row: 7, col: 3 },
+                    Loc { row: 8, col: 2 }
+                ]
+        );
+    }
+
+    #[test]
+    fn liberties_are_calculated_correctly() {
+        let mut board = Board::new(11, 11, 2.0);
+
+        let black_groups: Vec<Loc> = vec![
+            // Group 1
+            Loc::from_string("1, 1").expect("Failed to create Loc from string"),
+            Loc { row: 1, col: 2 },
+            // Group 2
+            Loc { row: 4, col: 1 },
+            Loc { row: 5, col: 1 },
+            // Group 3
+            Loc { row: 3, col: 3 },
+            Loc { row: 3, col: 4 },
+            Loc { row: 4, col: 3 },
+            // Group 4
+            Loc { row: 4, col: 7 },
+            Loc { row: 5, col: 7 },
+            Loc { row: 6, col: 7 },
+        ];
+        let white_groups: Vec<Loc> = vec![
+            // Group 5
+            Loc { row: 2, col: 2 },
+            Loc { row: 3, col: 1 },
+            Loc { row: 3, col: 2 },
+            Loc { row: 4, col: 2 },
+            // Group 6
+            Loc { row: 9, col: 1 },
+            // Group 7
+            Loc { row: 6, col: 2 },
+            Loc { row: 6, col: 3 },
+            Loc { row: 7, col: 2 },
+            Loc { row: 7, col: 3 },
+            Loc { row: 8, col: 2 },
+        ];
+
+        for mv in black_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::Black,
+                loc: mv,
+            })
+        }
+
+        for mv in white_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::White,
+                loc: mv,
+            })
+        }
+
+        assert!(board.count_liberties(Loc { row: 1, col: 1 }) == 2);
+        assert!(board.count_liberties(Loc { row: 1, col: 2 }) == 2);
+        assert!(board.count_liberties(Loc { row: 4, col: 1 }) == 2);
+        assert!(board.count_liberties(Loc { row: 5, col: 1 }) == 2);
+        assert!(board.count_liberties(Loc { row: 3, col: 3 }) == 5);
+        assert!(board.count_liberties(Loc { row: 3, col: 4 }) == 5);
+        assert!(board.count_liberties(Loc { row: 4, col: 3 }) == 5);
+        assert!(board.count_liberties(Loc { row: 4, col: 7 }) == 8);
+        assert!(board.count_liberties(Loc { row: 5, col: 7 }) == 8);
+        assert!(board.count_liberties(Loc { row: 6, col: 7 }) == 8);
+        assert!(board.count_liberties(Loc { row: 2, col: 2 }) == 3);
+        assert!(board.count_liberties(Loc { row: 3, col: 1 }) == 3);
+        assert!(board.count_liberties(Loc { row: 3, col: 2 }) == 3);
+        assert!(board.count_liberties(Loc { row: 4, col: 2 }) == 3);
+        assert!(board.count_liberties(Loc { row: 9, col: 1 }) == 2);
+        assert!(board.count_liberties(Loc { row: 6, col: 2 }) == 9);
+        assert!(board.count_liberties(Loc { row: 6, col: 3 }) == 9);
+        assert!(board.count_liberties(Loc { row: 7, col: 2 }) == 9);
+        assert!(board.count_liberties(Loc { row: 7, col: 3 }) == 9);
+        assert!(board.count_liberties(Loc { row: 8, col: 2 }) == 9);
+    }
+
+    #[test]
+    fn groups_are_removed_correctly() {
+        let mut board = Board::new(11, 11, 2.0);
+
+        let black_groups: Vec<Loc> = vec![
+            // Group 1
+            Loc::from_string("1, 1").expect("Failed to create Loc from string"),
+            Loc { row: 1, col: 2 },
+            // Group 2
+            Loc { row: 4, col: 1 },
+            Loc { row: 5, col: 1 },
+            // Group 3
+            Loc { row: 3, col: 3 },
+            Loc { row: 3, col: 4 },
+            Loc { row: 4, col: 3 },
+            // Group 4
+            Loc { row: 4, col: 7 },
+            Loc { row: 5, col: 7 },
+            Loc { row: 6, col: 7 },
+        ];
+        let white_groups: Vec<Loc> = vec![
+            // Group 5
+            Loc { row: 2, col: 2 },
+            Loc { row: 3, col: 1 },
+            Loc { row: 3, col: 2 },
+            Loc { row: 4, col: 2 },
+            // Group 6
+            Loc { row: 9, col: 1 },
+            // Group 7
+            Loc { row: 6, col: 2 },
+            Loc { row: 6, col: 3 },
+            Loc { row: 7, col: 2 },
+            Loc { row: 7, col: 3 },
+            Loc { row: 8, col: 2 },
+        ];
+
+        for mv in black_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::Black,
+                loc: mv,
+            })
+        }
+
+        for mv in white_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::White,
+                loc: mv,
+            })
+        }
+
+        board.remove_group(Loc { row: 1, col: 1 });
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 1, col: 2 }) == Color::Empty);
+        board.remove_group(Loc { row: 5, col: 1 });
+        assert!(board.get(Loc { row: 4, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 5, col: 1 }) == Color::Empty);
+        board.remove_group(Loc { row: 3, col: 4 });
+        assert!(board.get(Loc { row: 3, col: 3 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 4 }) == Color::Empty);
+        assert!(board.get(Loc { row: 4, col: 3 }) == Color::Empty);
+        board.remove_group(Loc { row: 6, col: 7 });
+        assert!(board.get(Loc { row: 4, col: 7 }) == Color::Empty);
+        assert!(board.get(Loc { row: 5, col: 7 }) == Color::Empty);
+        assert!(board.get(Loc { row: 6, col: 7 }) == Color::Empty);
+        board.remove_group(Loc { row: 3, col: 2 });
+        assert!(board.get(Loc { row: 2, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 4, col: 2 }) == Color::Empty);
+        board.remove_group(Loc { row: 9, col: 1 });
+        assert!(board.get(Loc { row: 9, col: 1 }) == Color::Empty);
+        board.remove_group(Loc { row: 7, col: 3 });
+        assert!(board.get(Loc { row: 6, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 6, col: 3 }) == Color::Empty);
+        assert!(board.get(Loc { row: 7, col: 2 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 3 }) == Color::Empty);
+        assert!(board.get(Loc { row: 8, col: 2 }) == Color::Empty);
+    }
+
+    #[test]
+    fn groups_removal_is_triggered_when_their_liberties_reach_0() {
+        let mut board = Board::new(11, 11, 2.0);
+
+        let black_groups: Vec<Vec<Loc>> = vec![
+            // Group 1
+            vec![Loc { row: 1, col: 1 }, Loc { row: 1, col: 2 }],
+            // Group 2
+            vec![Loc { row: 4, col: 1 }, Loc { row: 5, col: 1 }],
+            // Group 3
+            vec![
+                Loc { row: 3, col: 3 },
+                Loc { row: 3, col: 4 },
+                Loc { row: 4, col: 3 },
+            ],
+            // Group 4
+            vec![
+                Loc { row: 4, col: 7 },
+                Loc { row: 5, col: 7 },
+                Loc { row: 6, col: 7 },
+                Loc { row: 7, col: 7 },
+            ],
+            // Group 5
+            vec![Loc { row: 9, col: 9 }],
+        ];
+
+        let white_groups: Vec<Vec<Loc>> = vec![
+            // Takes group 1
+            vec![
+                Loc { row: 2, col: 1 },
+                Loc { row: 2, col: 2 },
+                Loc { row: 1, col: 3 },
+            ],
+            // Takes group 2
+            vec![
+                Loc { row: 3, col: 1 },
+                Loc { row: 4, col: 2 },
+                Loc { row: 5, col: 2 },
+                Loc { row: 6, col: 1 },
+            ],
+            // Takes group 3
+            vec![
+                Loc { row: 2, col: 3 },
+                Loc { row: 2, col: 4 },
+                Loc { row: 3, col: 2 },
+                Loc { row: 3, col: 5 },
+                Loc { row: 4, col: 2 },
+                Loc { row: 4, col: 4 },
+                Loc { row: 5, col: 3 },
+            ],
+            // Takes group 4
+            vec![
+                Loc { row: 3, col: 7 },
+                Loc { row: 4, col: 6 },
+                Loc { row: 4, col: 8 },
+                Loc { row: 5, col: 6 },
+                Loc { row: 5, col: 8 },
+                Loc { row: 6, col: 6 },
+                Loc { row: 6, col: 8 },
+                Loc { row: 7, col: 6 },
+                Loc { row: 7, col: 8 },
+                Loc { row: 8, col: 7 },
+            ],
+            // Takes group 5
+            vec![Loc { row: 8, col: 9 }, Loc { row: 9, col: 8 }],
+        ];
+
+        for group in &black_groups {
+            for mv in group {
+                board.play_if_move_is_valid(&Move {
+                    player: Player::Black,
+                    loc: *mv,
+                });
+            }
+        }
+
+        for (group_index, white_moves) in white_groups.iter().enumerate() {
+            for (i, mv) in white_moves.iter().enumerate() {
+                board.play_if_move_is_valid(&Move {
+                    player: Player::White,
+                    loc: *mv,
+                });
+                if i + 1 == white_moves.len() {
+                    for loc in &black_groups[group_index] {
+                        assert!(board.get(*loc) == Color::Empty);
+                    }
+                } else {
+                    for loc in &black_groups[group_index] {
+                        assert!(board.get(*loc) == Color::Black);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn undoing_multiple_moves_one_after_another_and_continuing_the_game_after() {
+        let mut test_move_history: Vec<Move> = vec![];
+        let mut rng = rand::thread_rng();
+        let mut current_move = Move {
+            player: Player::White,
+            loc: Loc { row: 0, col: 0 },
+        };
+
+        let mut board = Board::new(7, 7, 2.0);
+        let mut moves_left = 10;
+
+        while moves_left > 0 {
+            let row = rng.gen_range(0..7);
+            let col = rng.gen_range(0..7);
+            let current_move_coords = Loc { row, col };
+            current_move.loc = current_move_coords;
+
+            if board.move_is_valid(&current_move) {
+                test_move_history.push(current_move.clone());
+                board.play_if_move_is_valid(&current_move);
+                current_move.player = current_move.player.change();
+                moves_left -= 1;
+            }
+        }
+
+        for _ in 1..=6 {
+            let last_move = test_move_history.pop().unwrap();
+            assert_ne!(board.get(last_move.loc), Color::Empty);
+
+            board = board.undo();
+
+            assert_eq!(board.get(last_move.loc), Color::Empty);
+        }
+
+        moves_left = 6;
+
+        while moves_left > 0 {
+            let row = rng.gen_range(0..7);
+            let col = rng.gen_range(0..7);
+            let current_move_coords = Loc { row, col };
+            current_move.loc = current_move_coords;
+
+            if board.move_is_valid(&current_move) {
+                assert_eq!(board.get(current_move.loc), Color::Empty);
+                board.play_if_move_is_valid(&current_move);
+                assert_ne!(board.get(current_move.loc), Color::Empty);
+                current_move.player = current_move.player.change();
+
+                println!();
+                moves_left -= 1;
+            }
+        }
+    }
+
+    #[test]
+    fn undo_restores_both_groups_that_were_captured_by_the_undone_move() {
+        let mut board = Board::new(7, 5, 2.0);
+
+        let moves = [
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 1, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 1, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 2, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 2, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 3, col: 2 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 3, col: 1 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 4, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 4, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 2, col: 1 },
+            },
+        ];
+
+        for mv in moves {
+            board.play_if_move_is_valid(&mv);
+        }
+
+        board = board.undo();
+
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 3, col: 1 }) == Color::White);
+    }
+
+    #[test]
+    fn board_position_cannot_be_repeated() {
+        let mut board = Board::new(6, 5, 2.0);
+
+        let moves = [
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 3, col: 1 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 2, col: 1 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 2, col: 2 },
+            },
+            Move {
+                player: Player::White,
+                loc: Loc { row: 1, col: 2 },
+            },
+            Move {
+                player: Player::Black,
+                loc: Loc { row: 1, col: 1 },
+            },
+        ];
+
+        for mv in moves {
+            board.play_if_move_is_valid(&mv);
+        }
+
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 2, col: 1 },
+        });
+
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Black);
+
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 4, col: 3 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 3, col: 3 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 2, col: 1 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        });
+
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::White);
+
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 2, col: 3 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::White,
+            loc: Loc { row: 4, col: 2 },
+        });
+        board.play_if_move_is_valid(&Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        });
+
+        assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
+        assert!(board.get(Loc { row: 1, col: 1 }) == Color::Black);
+    }
+
+    #[test]
+    fn each_group_points_are_counted_correctly() {
+        let mut board = Board::new(8, 8, 0.0);
+        let black_groups = [
+            Loc { row: 1, col: 2 },
+            Loc { row: 1, col: 3 },
+            Loc { row: 1, col: 5 },
+            Loc { row: 2, col: 1 },
+            Loc { row: 2, col: 3 },
+            Loc { row: 3, col: 1 },
+            Loc { row: 3, col: 3 },
+            Loc { row: 4, col: 2 },
+            Loc { row: 5, col: 2 },
+            Loc { row: 6, col: 2 },
+        ];
+
+        let white_groups = [
+            Loc { row: 1, col: 4 },
+            Loc { row: 2, col: 4 },
+            Loc { row: 2, col: 5 },
+            Loc { row: 2, col: 6 },
+            Loc { row: 3, col: 4 },
+            Loc { row: 4, col: 4 },
+            Loc { row: 5, col: 1 },
+            Loc { row: 5, col: 4 },
+            Loc { row: 6, col: 4 },
+        ];
+
+        for mv in black_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::Black,
+                loc: mv,
+            })
+        }
+
+        for mv in white_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::White,
+                loc: mv,
+            })
+        }
+
+        let loc_of_points_to_calculate = [
+            Loc { row: 1, col: 1 },
+            Loc { row: 1, col: 6 },
+            Loc { row: 2, col: 2 },
+            Loc { row: 3, col: 2 },
+            Loc { row: 3, col: 5 },
+            Loc { row: 3, col: 6 },
+            Loc { row: 4, col: 1 },
+            Loc { row: 4, col: 3 },
+            Loc { row: 4, col: 5 },
+            Loc { row: 4, col: 6 },
+            Loc { row: 5, col: 3 },
+            Loc { row: 5, col: 5 },
+            Loc { row: 5, col: 6 },
+            Loc { row: 6, col: 1 },
+            Loc { row: 6, col: 3 },
+            Loc { row: 6, col: 5 },
+            Loc { row: 6, col: 6 },
+        ];
+
+        let expected_points = [
+            (Color::Black, 1),
+            (Color::Empty, 0),
+            (Color::Black, 2),
+            (Color::Black, 2),
+            (Color::White, 8),
+            (Color::White, 8),
+            (Color::Empty, 0),
+            (Color::Empty, 0),
+            (Color::White, 8),
+            (Color::White, 8),
+            (Color::Empty, 0),
+            (Color::White, 8),
+            (Color::White, 8),
+            (Color::Empty, 0),
+            (Color::Empty, 0),
+            (Color::White, 8),
+            (Color::White, 8),
+        ];
+
+        for (i, loc) in loc_of_points_to_calculate.iter().enumerate() {
+            assert_eq!(board.count_potential_points(*loc), expected_points[i]);
+        }
+    }
+
+    #[test]
+    fn board_points_are_counted_correctly() {
+        let mut board = Board::new(8, 8, 0.0);
+        let black_groups = [
+            Loc { row: 1, col: 2 },
+            Loc { row: 1, col: 3 },
+            Loc { row: 1, col: 5 },
+            Loc { row: 2, col: 1 },
+            Loc { row: 2, col: 3 },
+            Loc { row: 3, col: 1 },
+            Loc { row: 3, col: 3 },
+            Loc { row: 4, col: 2 },
+            Loc { row: 5, col: 2 },
+            Loc { row: 6, col: 2 },
+        ];
+
+        let white_groups = [
+            Loc { row: 1, col: 4 },
+            Loc { row: 2, col: 4 },
+            Loc { row: 2, col: 5 },
+            Loc { row: 2, col: 6 },
+            Loc { row: 3, col: 4 },
+            Loc { row: 4, col: 4 },
+            Loc { row: 5, col: 1 },
+            Loc { row: 5, col: 4 },
+            Loc { row: 6, col: 4 },
+        ];
+
+        for mv in black_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::Black,
+                loc: mv,
+            })
+        }
+
+        for mv in white_groups {
+            board.play_if_move_is_valid(&Move {
+                player: Player::White,
+                loc: mv,
+            })
+        }
+
+        assert_eq!(board.count_board_points(), (3, 8));
+    }
+
+    #[test]
+    fn passing_works() {
+        let mut current_move = Move {
+            player: Player::Black,
+            loc: Loc { row: 1, col: 1 },
+        };
+        let expected_move = current_move.clone();
+        assert_eq!(current_move, expected_move);
+
+        current_move = current_move.pass();
+        assert!(current_move.is_pass());
+
+        current_move = Move {
+            player: Player::White,
+            loc: Loc { row: 5, col: 3 },
+        };
+
+        current_move = current_move.pass();
+        assert!(current_move.is_pass());
+    }
+    #[test]
+    fn counting_captures() {
+        let mut board = Board::new(8, 8, 0.0);
+
+        let black_groups = [
+            // Capture 1
+            Loc { row: 1, col: 1 },
+            // Capture 2
+            Loc { row: 1, col: 5 },
+            Loc { row: 2, col: 6 },
+            // Capture 3
+            Loc { row: 4, col: 1 },
+            Loc { row: 5, col: 1 },
+            Loc { row: 5, col: 3 },
+            Loc { row: 6, col: 2 },
+            Loc { row: 6, col: 3 },
+        ];
+
+        let white_capture_1 = [Loc { row: 1, col: 2 }, Loc { row: 2, col: 1 }];
+
+        let white_capture_2 = [
+            Loc { row: 1, col: 4 },
+            Loc { row: 2, col: 5 },
+            Loc { row: 3, col: 6 },
+            Loc { row: 1, col: 6 },
+        ];
+
+        let white_capture_3 = [
+            Loc { row: 3, col: 1 },
+            Loc { row: 4, col: 2 },
+            Loc { row: 4, col: 3 },
+            Loc { row: 5, col: 2 },
+            Loc { row: 5, col: 4 },
+            Loc { row: 6, col: 4 },
+            Loc { row: 6, col: 1 },
+        ];
+
+        for loc in black_groups {
+            board.play(&Move {
+                player: Player::Black,
+                loc,
+            });
+        }
+
+        assert_eq!(board.white_captures, 0);
+        assert_eq!(board.black_captures, 0);
+
+        for loc in white_capture_1 {
+            board.play(&Move {
+                player: Player::White,
+                loc,
+            });
+        }
+
+        assert_eq!(board.white_captures, 1);
+        assert_eq!(board.black_captures, 0);
+
+        for loc in white_capture_2 {
+            board.play(&Move {
+                player: Player::White,
+                loc,
+            });
+        }
+
+        assert_eq!(board.white_captures, 3);
+        assert_eq!(board.black_captures, 0);
+
+        for loc in white_capture_3 {
+            board.play(&Move {
+                player: Player::White,
+                loc,
+            });
+        }
+
+        assert_eq!(board.white_captures, 8);
+        assert_eq!(board.black_captures, 0);
+    }
 }

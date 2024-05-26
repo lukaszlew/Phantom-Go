@@ -1,11 +1,10 @@
 use crate::board::{Board, Loc, Move, Player};
 
 pub mod board;
-pub mod board_test;
 
 fn main() {
     let mut board = Board::new(7, 7, 0.0);
-    
+
     // TODO: Make this variable more local. Try to simplify code
     // BTW board has access to last move if you need it, including last player.
 
