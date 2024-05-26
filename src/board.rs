@@ -41,7 +41,7 @@ impl Player {
         }
     }
 
-    pub fn change(self) -> Self {
+    pub fn change(self) -> Self { 
         match self {
             Player::Black => Player::White,
             Player::White => Player::Black,
@@ -85,7 +85,7 @@ impl Loc {
     }
 
     pub fn from_string(s: &str) -> Option<Self> {
-        let mut loc = Loc { row: 0, col: 0 };
+        let mut loc = Loc { row: 0, col: 0 };  // TODO evil style. Remove this line.
         // if input doesn't have a comma - definitely invalid
         if !s.contains(",") {
             return None;
@@ -97,7 +97,7 @@ impl Loc {
             return None;
         }
 
-        loc.row = row_col[0].parse::<usize>().unwrap_or(0);
+        loc.row = row_col[0].parse::<usize>().unwrap_or(0); // TODO bug, if error you want to retunrn None. Learn about question mark.
         loc.col = row_col[1].parse::<usize>().unwrap_or(0);
 
         Some(loc)
@@ -112,7 +112,7 @@ impl Loc {
         upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
 
-    fn coords(&self, rows: usize) -> String {
+    fn coords(&self, rows: usize) -> String {  // TODO: del unused code.
         let col = "ABCDEFGHJKLMNOPQRST";
         let row = rows - self.row;
         let col = col.chars().nth(self.col).unwrap();
@@ -120,7 +120,9 @@ impl Loc {
     }
 
     // Checking borders for each "island"
-    fn get_bordering_colors(&self, island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
+    fn get_bordering_colors(&self, island: &Vec<Loc>, board: &Board) -> HashSet<Color> {  
+        // TODO: Bad style, Loc should not need to know about Board. Move to Board.
+        //   self is not even used :D
         let mut bordering_colors: HashSet<Color> = HashSet::new();
         for field in island {
             bordering_colors.insert(board.get(field.up()));
@@ -157,6 +159,7 @@ impl Move {
 #[derive(Clone, PartialEq)]
 pub struct Board {
     fields: Vec<Vec<Color>>,
+    // TODO: work towards making ALL field private
     pub game_history: Vec<Move>,
     komi: f32,
     pub black_captures: isize,
@@ -215,7 +218,7 @@ impl Board {
         (self.fields.len(), self.fields[0].len())
     }
 
-    fn get_all_loc(&self) -> Vec<Loc> {
+    fn get_all_loc(&self) -> Vec<Loc> {  // TODO: Loc.all((usize, usize)) -> Vec<Loc>
         let mut all_loc: Vec<Loc> = vec![];
         for (i, row) in self.fields.iter().enumerate() {
             for j in 0..row.len() {
@@ -224,8 +227,13 @@ impl Board {
         }
         all_loc
     }
+    
     // Creates a set of potential points - "islands" of Color::Empty
+    // TODO: comments often suggest renaming. E.g., 
+    // Lingo "island" - set of locs of empty fields ...
+    // empty_islands(&self) -> HashSet<Vec<Loc>>
     fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
+        // TODO let mut islands = ...
         let mut groups_of_empty: HashSet<Vec<Loc>> = HashSet::new();
         for loc in self.get_all_loc() {
             if self.get(loc) == Color::Empty {
@@ -238,6 +246,7 @@ impl Board {
         groups_of_empty
     }
 
+    // TODO: Not pub!
     pub fn count_potential_points(&self, loc: Loc) -> (Color, isize) {
         if self.get(loc) != Color::Empty {
             return (Color::Invalid, 0);

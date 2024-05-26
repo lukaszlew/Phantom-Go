@@ -5,6 +5,10 @@ pub mod board_test;
 
 fn main() {
     let mut board = Board::new(7, 7, 0.0);
+    
+    // TODO: Make this variable more local. Try to simplify code
+    // BTW board has access to last move if you need it, including last player.
+
     let mut current_move = Move {
         player: Player::Black,
         loc: Loc { row: 0, col: 0 },
@@ -18,12 +22,15 @@ fn main() {
         );
         let player_input = board::take_player_input();
 
+        // TODO: This match is too long
         match player_input.as_str() {
             "q" => {
                 println!("\nQuit game!\n");
                 return;
             }
             "p" => {
+                // Api surface reduction
+                // TODO: Board.last_two_moves_are_pass(self) -> bool
                 let previous_move = board.game_history.last();
                 let previous_move_is_pass = match previous_move {
                     Some(previous_move) => previous_move.is_pass(),
@@ -61,6 +68,8 @@ fn main() {
         println!("{}", board.to_string());
     }
 
+    // TODO: This code should be in Board.get_result(&self) -> GameResult
+    // Lesson: mut is (sometimes necessary) evil
     // Removing dead stones loop
     loop {
         println!("\nRemove dead stones or input 'r' to calculate the result:\n");
