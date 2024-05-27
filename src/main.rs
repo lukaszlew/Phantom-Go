@@ -3,7 +3,7 @@ use crate::board::{Board, Loc, Move, Player};
 pub mod board;
 
 fn main() {
-    let mut board = Board::new(7, 7, 0.0);
+    let mut board = Board::new(7, 7, 1.5);
 
     // TODO: Make this variable more local. Try to simplify code
     // BTW board has access to last move if you need it, including last player.
@@ -67,24 +67,5 @@ fn main() {
         println!("{}", board.to_string());
     }
 
-    // TODO: This code should be in Board.get_result(&self) -> GameResult
-    // Lesson: mut is (sometimes necessary) evil
-    // Removing dead stones loop
-    loop {
-        println!("\nRemove dead stones or input 'r' to calculate the result:\n");
-        println!("{}", board.to_string());
-
-        let player_input = board::take_player_input();
-        match player_input.as_str() {
-            "r" => break,
-            _ => match Loc::from_string(&player_input) {
-                None => {
-                    println!("\nInvalid location :c\nInput one of the group's stone's location to remove it!");
-                    continue;
-                }
-                Some(group_to_remove_loc) => board.remove_group(group_to_remove_loc),
-            },
-        }
-    }
-    board.print_result();
+    println!("{}", board.count_score().to_string());
 }

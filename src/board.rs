@@ -27,10 +27,21 @@ pub enum Player {
 }
 
 #[derive(Debug)]
-enum Winner {
-    White,
-    Black,
+pub enum GameResult {
+    Player(Player, f32),
     Draw,
+}
+
+impl GameResult {
+    pub fn to_string(&self) -> String {
+        match self {
+            GameResult::Draw => String::from("D R A W !"),
+            GameResult::Player(player, result) => match player {
+                Player::Black => format!("Black +{}", result),
+                Player::White => format!("White +{}", result),
+            },
+        }
+    }
 }
 
 impl Player {
@@ -157,8 +168,8 @@ pub struct Board {
     komi: f32,
     black_captures: isize,
     white_captures: isize,
-    result: f32,
 }
+// nie czuję potrzeby robienia tego, bo nie widzę w jaki sposób jest to niebezpieczne
 
 impl Board {
     pub fn new(rows: usize, cols: usize, komi: f32) -> Self {
@@ -169,7 +180,6 @@ impl Board {
             komi,
             black_captures: 0,
             white_captures: 0,
-            result: 0.0,
         };
         // Setting up sentinels in rows
         for i in 0..cols {
@@ -290,33 +300,45 @@ impl Board {
         (black_points, white_points)
     }
 
-    fn count_score(&self) -> (Winner, f32) {
+    fn remove_dead_stones_for_counting(&mut self) {
+        loop {
+            println!("\nRemove dead stones or input 'r' to calculate the result:\n");
+            println!("{}", self.to_string());
+
+            let player_input = self::take_player_input();
+            match player_input.as_str() {
+                "r" => break,
+                _ => match Loc::from_string(&player_input) {
+                    None => {
+                        println!("\nInvalid location :c\nInput one of the group's stone's location to remove it!");
+                        continue;
+                    }
+                    Some(group_to_remove_loc) => self.remove_group(group_to_remove_loc),
+                },
+            }
+        }
+    }
+
+    pub fn count_score(&mut self) -> GameResult {
+        self.remove_dead_stones_for_counting();
         let all_points = self.count_board_points();
         let black_total_points: f32 = all_points.0 as f32 + self.black_captures as f32;
         let white_total_points: f32 = all_points.1 as f32 + self.white_captures as f32 + self.komi;
 
         if black_total_points - white_total_points == 0.0 {
-            return (Winner::Draw, 0.0);
+            return GameResult::Draw;
         }
 
         let black_won = black_total_points > white_total_points;
-        let result: (Winner, f32);
+        let result: GameResult;
 
         if black_won {
-            result = (Winner::Black, black_total_points - white_total_points);
+            result = GameResult::Player(Player::Black, black_total_points - white_total_points);
         } else {
-            result = (Winner::White, white_total_points - black_total_points)
+            result = GameResult::Player(Player::White, white_total_points - black_total_points);
         }
 
         result
-    }
-
-    pub fn print_result(&self) {
-        let score = self.count_score();
-        match score.0 {
-            Winner::Draw => println!("\nD R A W !"),
-            _ => println!("{:?} won by {:?}!", score.0, score.1),
-        }
     }
 
     #[allow(dead_code)]
