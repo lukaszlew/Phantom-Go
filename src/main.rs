@@ -14,7 +14,7 @@ fn main() {
     };
 
     // Game loop
-    loop {
+    while !board.last_two_moves_are_pass() {
         println!(
             "Turn: {:?}\nInput coordinates to play, 'u' to undo, 'p' to pass or 'q' to quit",
             current_move.player
@@ -28,19 +28,6 @@ fn main() {
                 return;
             }
             "p" => {
-                // Api surface reduction
-                // TODO: Board.last_two_moves_are_pass(self) -> bool
-                let previous_move = board.game_history.last();
-                let previous_move_is_pass = match previous_move {
-                    Some(previous_move) => previous_move.is_pass(),
-                    None => false,
-                };
-
-                if previous_move_is_pass {
-                    println!("\nGame ended!\n");
-                    break;
-                }
-
                 current_move = current_move.pass();
             }
             "gh" => {

@@ -465,6 +465,14 @@ impl Board {
         }
         board_after_undo
     }
+    // When the argument is (self), not (&self), cloning the board will be needed at every iteration of the while loop
+    pub fn last_two_moves_are_pass(&self) -> bool {
+        if self.game_history.len() > 1 {
+            let last_two_moves = &self.game_history[self.game_history.len() - 2..];
+            return last_two_moves[0].loc == last_two_moves[1].loc;
+        }
+        false
+    }
 }
 
 pub fn take_player_input() -> String {
