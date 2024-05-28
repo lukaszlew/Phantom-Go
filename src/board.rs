@@ -52,7 +52,7 @@ impl Player {
         }
     }
 
-    pub fn change(self) -> Self {
+    pub fn opponent(self) -> Self {
         match self {
             Player::Black => Player::White,
             Player::White => Player::Black,
@@ -1003,7 +1003,7 @@ mod tests {
             if board.move_is_valid(&current_move) {
                 test_move_history.push(current_move.clone());
                 board.play_if_move_is_valid(&current_move);
-                current_move.player = current_move.player.change();
+                current_move.player = current_move.player.opponent();
                 moves_left -= 1;
             }
         }
@@ -1029,7 +1029,7 @@ mod tests {
                 assert_eq!(board.get(current_move.loc), Color::Empty);
                 board.play_if_move_is_valid(&current_move);
                 assert_ne!(board.get(current_move.loc), Color::Empty);
-                current_move.player = current_move.player.change();
+                current_move.player = current_move.player.opponent();
 
                 println!();
                 moves_left -= 1;

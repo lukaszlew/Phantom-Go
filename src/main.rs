@@ -36,7 +36,7 @@ fn main() {
             }
             "u" => {
                 board = board.undo();
-                current_move.player = current_move.player.change();
+                current_move.player = current_move.player.opponent();
                 println!("{}", board.to_string());
                 continue;
             }
@@ -50,7 +50,7 @@ fn main() {
         }
 
         board.play(&current_move);
-        current_move.player = current_move.player.change();
+        current_move.player = current_move.player.opponent();
         println!("{}", board.to_string());
     }
 
