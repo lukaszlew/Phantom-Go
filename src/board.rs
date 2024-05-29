@@ -96,8 +96,6 @@ impl Loc {
     }
 
     pub fn from_string(s: &str) -> Option<Self> {
-        let mut loc = Loc { row: 0, col: 0 }; // TODO evil style. Remove this line.
-                                              // if input doesn't have a comma - definitely invalid
         if !s.contains(",") {
             return None;
         }
@@ -108,10 +106,11 @@ impl Loc {
             return None;
         }
 
-        loc.row = row_col[0].parse::<usize>().unwrap_or(0); // TODO bug, if error you want to retunrn None. Learn about question mark.
-        loc.col = row_col[1].parse::<usize>().unwrap_or(0);
+        // parse() returns Result<T, E>, ok() converts it to Option<T>
+        let row = row_col[0].parse::<usize>().ok()?;
+        let col = row_col[1].parse::<usize>().ok()?;
 
-        Some(loc)
+        Some(Loc { row, col })
     }
 
     fn is_on_board(&self, board_size: (usize, usize)) -> bool {
@@ -352,6 +351,11 @@ impl Board {
         if !mv.loc.is_on_board(board_size) {
             return false;
         }
+
+        if self.get(mv.loc) != Color::Empty {
+            return false;
+        }
+
         let mut potential_board = self.clone();
         if potential_board.get(mv.loc) == Color::Empty {
             potential_board.play(mv);
