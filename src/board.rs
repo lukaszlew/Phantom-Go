@@ -1,3 +1,6 @@
+// Lingo:
+//     islands - sets of groups of Color::Empty from the Board
+
 use std::collections::HashSet;
 use std::{io, usize};
 
@@ -216,23 +219,20 @@ impl Board {
         (self.fields.len(), self.fields[0].len())
     }
 
-    // Creates a set of potential points - "islands" of Color::Empty
-    // TODO: comments often suggest renaming. E.g.,
-    // Lingo "island" - set of locs of empty fields ...
-    // empty_islands(&self) -> HashSet<Vec<Loc>>
-    fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
+    // Creates a set of potential points
+    fn empty_islands(&self) -> HashSet<Vec<Loc>> {
         // TODO let mut islands = ...
-        let mut groups_of_empty: HashSet<Vec<Loc>> = HashSet::new();
+        let mut islands: HashSet<Vec<Loc>> = HashSet::new();
         let board_size = self.board_size();
         for loc in Loc::get_all_loc(board_size.0, board_size.1) {
             if self.get(loc) == Color::Empty {
                 // If the group of Locs contains current Loc, the group of this loc has already been added
-                if !groups_of_empty.iter().any(|group| group.contains(&loc)) {
-                    groups_of_empty.insert(self.group_stones(loc));
+                if !islands.iter().any(|group| group.contains(&loc)) {
+                    islands.insert(self.group_stones(loc));
                 }
             }
         }
-        groups_of_empty
+        islands
     }
 
     // Checking borders for each "island"
@@ -281,7 +281,7 @@ impl Board {
     // Grouping empty "islands" and checking bordering Colors to decide which Color the points belong
     fn count_board_points(&self) -> (isize, isize) {
         // Populating the HashSet of Empty "islands"
-        let groups_of_potential_points = self.create_set_of_potential_points();
+        let groups_of_potential_points = self.empty_islands();
 
         let mut white_points: isize = 0;
         let mut black_points: isize = 0;
