@@ -373,13 +373,16 @@ impl Board {
     }
 
     pub fn play(&mut self, mv: &Move) {
+        self.game_history.push(mv.clone());
+
         if mv.is_pass() {
-            self.game_history.push(mv.clone());
             return;
         }
+
         if self.get(mv.loc) == Color::Empty {
             self.set(mv.loc, mv.player.to_color());
         }
+
         // Remove dead groups
         fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
             let color = board.get(loc);
@@ -387,12 +390,11 @@ impl Board {
                 board.remove_group(loc);
             }
         }
+
         get_check_invalid_remove_group_combo(self, mv.loc.up());
         get_check_invalid_remove_group_combo(self, mv.loc.down());
         get_check_invalid_remove_group_combo(self, mv.loc.left());
         get_check_invalid_remove_group_combo(self, mv.loc.right());
-        // update game_history
-        self.game_history.push(mv.clone());
     }
 
     #[allow(dead_code)]
