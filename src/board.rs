@@ -134,6 +134,10 @@ impl Loc {
         }
         all_loc
     }
+
+    pub fn pass() -> Self {
+        Loc { row: 99, col: 99 }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -163,18 +167,20 @@ pub struct Board {
     fields: Vec<Vec<Color>>,
     // TODO: work towards making ALL field private
     pub game_history: Vec<Move>,
+    // making public for manual testing
+    pub current_player: Player,
     komi: f32,
     black_captures: isize,
     white_captures: isize,
 }
-// nie czuję potrzeby robienia tego, bo nie widzę w jaki sposób jest to niebezpieczne
 
 impl Board {
-    pub fn new(rows: usize, cols: usize, komi: f32) -> Self {
+    pub fn new(rows: usize, cols: usize, starting_player: Player, komi: f32) -> Self {
         // Initializing an empty board
         let mut board = Board {
             fields: vec![vec![Color::Empty; cols]; rows],
             game_history: vec![],
+            current_player: starting_player,
             komi,
             black_captures: 0,
             white_captures: 0,
@@ -193,7 +199,12 @@ impl Board {
     }
 
     fn reset(&self) -> Self {
-        Board::new(self.fields.len(), self.fields[0].len(), self.komi)
+        return Board::new(
+            self.fields.len(),
+            self.fields[0].len(),
+            self.game_history[0].player,
+            self.komi,
+        );
     }
 
     fn get(&self, loc: Loc) -> Color {
@@ -345,7 +356,7 @@ impl Board {
     #[allow(dead_code)]
     fn move_is_valid(&self, mv: &Move) -> bool {
         let board_size = self.board_size();
-        if !mv.loc.is_on_board(board_size) {
+        if !mv.loc.is_on_board(board_size) && mv.loc != (Loc { row: 99, col: 99 }) {
             return false;
         }
 
@@ -377,12 +388,12 @@ impl Board {
         self.game_history.push(mv.clone());
 
         if mv.is_pass() {
+            self.current_player = self.current_player.opponent();
             return;
         }
 
-        if self.get(mv.loc) == Color::Empty {
-            self.set(mv.loc, mv.player.to_color());
-        }
+        self.set(mv.loc, mv.player.to_color());
+        self.current_player = self.current_player.opponent();
 
         // Remove dead groups
         fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
@@ -461,8 +472,12 @@ impl Board {
     }
 
     pub fn undo(mut self) -> Self {
+        if self.game_history.len() == 0 {
+            return self;
+        }
+
+        let mut board_after_undo = self.reset();
         self.game_history.pop();
-        let mut board_after_undo = Board::new(self.fields.len(), self.fields[0].len(), self.komi);
         for mv in &self.game_history {
             board_after_undo.play(mv);
         }
@@ -499,7 +514,7 @@ mod tests {
 
     #[test]
     fn stones_have_to_be_placed_on_empty_fields() {
-        let mut board = Board::new(5, 5, 0.0);
+        let mut board = Board::new(5, 5, Player::Black, 0.0);
         assert_eq!(board.get(Loc { row: 1, col: 1 }), Color::Empty);
         board.play(&Move {
             player: Player::Black,
@@ -530,7 +545,7 @@ mod tests {
 
     #[test]
     fn stones_are_grouped_correctly() {
-        let mut board = Board::new(11, 11, 2.0);
+        let mut board = Board::new(11, 11, Player::Black, 2.0);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -741,7 +756,7 @@ mod tests {
 
     #[test]
     fn liberties_are_calculated_correctly() {
-        let mut board = Board::new(11, 11, 2.0);
+        let mut board = Board::new(11, 11, Player::Black, 2.0);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -813,7 +828,7 @@ mod tests {
 
     #[test]
     fn groups_are_removed_correctly() {
-        let mut board = Board::new(11, 11, 2.0);
+        let mut board = Board::new(11, 11, Player::Black, 2.0);
 
         let black_groups: Vec<Loc> = vec![
             // Group 1
@@ -892,7 +907,7 @@ mod tests {
 
     #[test]
     fn groups_removal_is_triggered_when_their_liberties_reach_0() {
-        let mut board = Board::new(11, 11, 2.0);
+        let mut board = Board::new(11, 11, Player::Black, 2.0);
 
         let black_groups: Vec<Vec<Loc>> = vec![
             // Group 1
@@ -994,7 +1009,7 @@ mod tests {
             loc: Loc { row: 0, col: 0 },
         };
 
-        let mut board = Board::new(7, 7, 2.0);
+        let mut board = Board::new(7, 7, Player::Black, 2.0);
         let mut moves_left = 10;
 
         while moves_left > 0 {
@@ -1042,7 +1057,7 @@ mod tests {
 
     #[test]
     fn undo_restores_both_groups_that_were_captured_by_the_undone_move() {
-        let mut board = Board::new(7, 5, 2.0);
+        let mut board = Board::new(7, 5, Player::Black, 2.0);
 
         let moves = [
             Move {
@@ -1096,7 +1111,7 @@ mod tests {
 
     #[test]
     fn board_position_cannot_be_repeated() {
-        let mut board = Board::new(6, 5, 2.0);
+        let mut board = Board::new(6, 5, Player::Black, 2.0);
 
         let moves = [
             Move {
@@ -1172,7 +1187,7 @@ mod tests {
 
     #[test]
     fn each_group_points_are_counted_correctly() {
-        let mut board = Board::new(8, 8, 0.0);
+        let mut board = Board::new(8, 8, Player::Black, 0.0);
         let black_groups = [
             Loc { row: 1, col: 2 },
             Loc { row: 1, col: 3 },
@@ -1259,7 +1274,7 @@ mod tests {
 
     #[test]
     fn board_points_are_counted_correctly() {
-        let mut board = Board::new(8, 8, 0.0);
+        let mut board = Board::new(8, 8, Player::Black, 0.0);
         let black_groups = [
             Loc { row: 1, col: 2 },
             Loc { row: 1, col: 3 },
@@ -1324,7 +1339,7 @@ mod tests {
     }
     #[test]
     fn counting_captures() {
-        let mut board = Board::new(8, 8, 0.0);
+        let mut board = Board::new(8, 8, Player::Black, 0.0);
 
         let black_groups = [
             // Capture 1
