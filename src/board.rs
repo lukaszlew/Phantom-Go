@@ -420,7 +420,7 @@ impl Board {
         let mut group_stones_coordinates: Vec<Loc> = vec![];
         let color = self.fields[loc.row][loc.col];
         self.flood_fill(loc, color, &mut group_stones_coordinates);
-        group_stones_coordinates.sort_by(|a, b| a.row.cmp(&b.row).then(a.col.cmp(&b.col)));
+        group_stones_coordinates.sort();
         group_stones_coordinates
     }
 
