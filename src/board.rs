@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::io;
+use std::{io, usize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Color {
@@ -121,6 +121,16 @@ impl Loc {
 
         upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
+
+    fn get_all_loc(r: usize, c: usize) -> Vec<Loc> {
+        let mut all_loc: Vec<Loc> = vec![];
+        for row in 0..r {
+            for col in 0..c {
+                all_loc.push(Loc { row, col })
+            }
+        }
+        all_loc
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -206,17 +216,6 @@ impl Board {
         (self.fields.len(), self.fields[0].len())
     }
 
-    fn get_all_loc(&self) -> Vec<Loc> {
-        // TODO: Loc.all((usize, usize)) -> Vec<Loc>
-        let mut all_loc: Vec<Loc> = vec![];
-        for (i, row) in self.fields.iter().enumerate() {
-            for j in 0..row.len() {
-                all_loc.push(Loc { row: i, col: j })
-            }
-        }
-        all_loc
-    }
-
     // Creates a set of potential points - "islands" of Color::Empty
     // TODO: comments often suggest renaming. E.g.,
     // Lingo "island" - set of locs of empty fields ...
@@ -224,7 +223,8 @@ impl Board {
     fn create_set_of_potential_points(&self) -> HashSet<Vec<Loc>> {
         // TODO let mut islands = ...
         let mut groups_of_empty: HashSet<Vec<Loc>> = HashSet::new();
-        for loc in self.get_all_loc() {
+        let board_size = self.board_size();
+        for loc in Loc::get_all_loc(board_size.0, board_size.1) {
             if self.get(loc) == Color::Empty {
                 // If the group of Locs contains current Loc, the group of this loc has already been added
                 if !groups_of_empty.iter().any(|group| group.contains(&loc)) {
