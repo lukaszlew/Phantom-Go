@@ -221,7 +221,6 @@ impl Board {
 
     // Creates a set of potential points
     fn empty_islands(&self) -> HashSet<Vec<Loc>> {
-        // TODO let mut islands = ...
         let mut islands: HashSet<Vec<Loc>> = HashSet::new();
         let board_size = self.board_size();
         for loc in Loc::get_all_loc(board_size.0, board_size.1) {
@@ -237,8 +236,6 @@ impl Board {
 
     // Checking borders for each "island"
     fn get_bordering_colors(&self, island: &Vec<Loc>) -> HashSet<Color> {
-        // TODO: Bad style, Loc should not need to know about Board. Move to Board.
-        //   self is not even used :D
         let mut bordering_colors: HashSet<Color> = HashSet::new();
         for field in island {
             bordering_colors.insert(self.get(field.up()));
