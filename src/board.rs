@@ -121,20 +121,6 @@ impl Loc {
 
         upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
-
-    // Checking borders for each "island"
-    fn get_bordering_colors(&self, island: &Vec<Loc>, board: &Board) -> HashSet<Color> {
-        // TODO: Bad style, Loc should not need to know about Board. Move to Board.
-        //   self is not even used :D
-        let mut bordering_colors: HashSet<Color> = HashSet::new();
-        for field in island {
-            bordering_colors.insert(board.get(field.up()));
-            bordering_colors.insert(board.get(field.down()));
-            bordering_colors.insert(board.get(field.left()));
-            bordering_colors.insert(board.get(field.right()));
-        }
-        bordering_colors
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -249,13 +235,27 @@ impl Board {
         groups_of_empty
     }
 
+    // Checking borders for each "island"
+    fn get_bordering_colors(&self, island: &Vec<Loc>) -> HashSet<Color> {
+        // TODO: Bad style, Loc should not need to know about Board. Move to Board.
+        //   self is not even used :D
+        let mut bordering_colors: HashSet<Color> = HashSet::new();
+        for field in island {
+            bordering_colors.insert(self.get(field.up()));
+            bordering_colors.insert(self.get(field.down()));
+            bordering_colors.insert(self.get(field.left()));
+            bordering_colors.insert(self.get(field.right()));
+        }
+        bordering_colors
+    }
+
     fn count_potential_points(&self, loc: Loc) -> (Color, isize) {
         if self.get(loc) != Color::Empty {
             return (Color::Invalid, 0);
         }
 
         let group = self.group_stones(loc);
-        let bordering_colors = loc.get_bordering_colors(&group, &self);
+        let bordering_colors = self.get_bordering_colors(&group);
 
         let potential_points_border_both_colors =
             bordering_colors.contains(&Color::Black) && bordering_colors.contains(&Color::White);
