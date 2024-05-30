@@ -125,7 +125,7 @@ impl Loc {
         upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
 
-    fn get_all_loc(r: usize, c: usize) -> Vec<Loc> {
+    fn get_all(r: usize, c: usize) -> Vec<Loc> {
         let mut all_loc: Vec<Loc> = vec![];
         for row in 0..r {
             for col in 0..c {
@@ -233,8 +233,8 @@ impl Board {
     // Creates a set of potential points
     fn empty_islands(&self) -> HashSet<Vec<Loc>> {
         let mut islands: HashSet<Vec<Loc>> = HashSet::new();
-        let board_size = self.board_size();
-        for loc in Loc::get_all_loc(board_size.0, board_size.1) {
+        let (rows, cols) = self.board_size();
+        for loc in Loc::get_all(rows, cols) {
             if self.get(loc) == Color::Empty {
                 // If the group of Locs contains current Loc, the group of this loc has already been added
                 if !islands.iter().any(|group| group.contains(&loc)) {
