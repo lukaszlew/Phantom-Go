@@ -138,6 +138,10 @@ impl Loc {
     pub fn pass() -> Self {
         Loc { row: 99, col: 99 }
     }
+
+    fn is_pass(&self) -> bool {
+        self.row == 99 && self.col == 99
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -356,7 +360,7 @@ impl Board {
     #[allow(dead_code)]
     fn move_is_valid(&self, mv: &Move) -> bool {
         let board_size = self.board_size();
-        if !mv.loc.is_on_board(board_size) && mv.loc != (Loc { row: 99, col: 99 }) {
+        if !mv.loc.is_on_board(board_size) && !mv.loc.is_pass() {
             return false;
         }
 
