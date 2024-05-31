@@ -1,9 +1,9 @@
-use crate::board::{Board, Loc, Move, Player};
+use crate::board::{Board, Loc, Move};
 
 pub mod board;
 
 fn main() {
-    let mut board = Board::new(7, 7, Player::Black, 1.5);
+    let mut board = Board::new(7, 7, 1.5);
 
     // Game loop
     while !board.last_two_moves_are_pass() {
