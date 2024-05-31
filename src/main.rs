@@ -24,7 +24,7 @@ fn main() {
                 loc: Loc::pass(),
             }),
             "gh" => {
-                println!("\n\n{:?}\n\n", board.game_history);
+                println!("\n\n{:?}\n\n", board.get_game_history());
             }
             "u" => {
                 board = board.undo();
