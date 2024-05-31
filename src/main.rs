@@ -9,7 +9,7 @@ fn main() {
     while !board.last_two_moves_are_pass() {
         println!(
             "Turn: {:?}\nInput coordinates to play, 'u' to undo, 'p' to pass or 'q' to quit",
-            board.current_player
+            board.get_current_player()
         );
         let player_input = board::take_player_input();
 
@@ -20,7 +20,7 @@ fn main() {
                 return;
             }
             "p" => board.play(&Move {
-                player: board.current_player,
+                player: board.get_current_player(),
                 loc: Loc::pass(),
             }),
             "gh" => {
@@ -35,7 +35,7 @@ fn main() {
                 }
                 Some(valid_loc_string) => {
                     board.play(&Move {
-                        player: board.current_player,
+                        player: board.get_current_player(),
                         loc: valid_loc_string,
                     });
                 }

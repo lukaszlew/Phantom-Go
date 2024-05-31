@@ -172,7 +172,7 @@ pub struct Board {
     // TODO: work towards making ALL field private
     game_history: Vec<Move>,
     // making public for manual testing
-    pub current_player: Player,
+    current_player: Player,
     komi: f32,
     black_captures: isize,
     white_captures: isize,
@@ -213,6 +213,10 @@ impl Board {
 
     pub fn get_game_history(&self) -> &Vec<Move> {
         &self.game_history
+    }
+
+    pub fn get_current_player(&self) -> Player {
+        self.current_player
     }
 
     fn get(&self, loc: Loc) -> Color {
