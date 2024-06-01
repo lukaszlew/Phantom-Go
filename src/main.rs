@@ -1,82 +1,48 @@
-use crate::board::{Board, Loc, Move, Player};
+use crate::board::{Board, Loc, Move};
 
 pub mod board;
-pub mod board_test;
 
 fn main() {
-    let mut board = Board::new(7, 7, 0.0);
-    let mut current_move = Move {
-        player: Player::Black,
-        loc: Loc { row: 0, col: 0 },
-    };
+    let mut board = Board::new(7, 7, 1.5);
 
     // Game loop
-    loop {
+    while !board.last_two_moves_are_pass() {
         println!(
             "Turn: {:?}\nInput coordinates to play, 'u' to undo, 'p' to pass or 'q' to quit",
-            current_move.player
+            board.get_current_player()
         );
         let player_input = board::take_player_input();
 
+        // TODO: This match is too long
         match player_input.as_str() {
             "q" => {
                 println!("\nQuit game!\n");
                 return;
             }
-            "p" => {
-                let previous_move = board.game_history.last();
-                let previous_move_is_pass = match previous_move {
-                    Some(previous_move) => previous_move.is_pass(),
-                    None => false,
-                };
-
-                if previous_move_is_pass {
-                    println!("\nGame ended!\n");
-                    break;
-                }
-
-                current_move = current_move.pass();
-            }
+            "p" => board.play(&Move {
+                player: board.get_current_player(),
+                loc: Loc::pass(),
+            }),
             "gh" => {
-                println!("\n\n{:?}\n\n", board.game_history);
-                continue;
+                println!("\n\n{:?}\n\n", board.get_game_history());
             }
             "u" => {
                 board = board.undo();
-                current_move.player = current_move.player.change();
-                println!("{}", board.to_string());
-                continue;
             }
             _ => match Loc::from_string(&player_input) {
                 None => {
                     println!("\nInvalid move :c\nT R Y  A G A I N !\n");
-                    continue;
                 }
-                Some(valid_loc_string) => current_move.loc = valid_loc_string,
+                Some(valid_loc_string) => {
+                    board.play(&Move {
+                        player: board.get_current_player(),
+                        loc: valid_loc_string,
+                    });
+                }
             },
         }
-
-        board.play(&current_move);
-        current_move.player = current_move.player.change();
         println!("{}", board.to_string());
     }
 
-    // Removing dead stones loop
-    loop {
-        println!("\nRemove dead stones or input 'r' to calculate the result:\n");
-        println!("{}", board.to_string());
-
-        let player_input = board::take_player_input();
-        match player_input.as_str() {
-            "r" => break,
-            _ => match Loc::from_string(&player_input) {
-                None => {
-                    println!("\nInvalid location :c\nInput one of the group's stone's location to remove it!");
-                    continue;
-                }
-                Some(group_to_remove_loc) => board.remove_group(group_to_remove_loc),
-            },
-        }
-    }
-    board.print_result();
+    println!("{}", board.count_score().to_string());
 }
