@@ -375,7 +375,7 @@ impl Board {
 
         let mut potential_board = self.clone();
         if potential_board.get(mv.loc) == Color::Empty {
-            potential_board.play(mv);
+            potential_board.unsafe_play(mv);
         } else {
             return false;
         }
@@ -393,7 +393,7 @@ impl Board {
         !move_is_suicidal && !board_is_repeated
     }
 
-    pub fn play(&mut self, mv: &Move) {
+    fn unsafe_play(&mut self, mv: &Move) {
         self.game_history.push(mv.clone());
 
         if mv.is_pass() {
@@ -419,9 +419,9 @@ impl Board {
     }
 
     #[allow(dead_code)]
-    fn play_if_move_is_valid(&mut self, mv: &Move) {
+    pub fn play(&mut self, mv: &Move) {
         if self.move_is_valid(mv) {
-            self.play(mv);
+            self.unsafe_play(mv);
         }
     }
 
@@ -589,14 +589,14 @@ mod tests {
         ];
 
         for mv in black_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::Black,
                 loc: mv,
             })
         }
 
         for mv in white_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::White,
                 loc: mv,
             })
@@ -800,14 +800,14 @@ mod tests {
         ];
 
         for mv in black_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::Black,
                 loc: mv,
             })
         }
 
         for mv in white_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::White,
                 loc: mv,
             })
@@ -872,14 +872,14 @@ mod tests {
         ];
 
         for mv in black_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::Black,
                 loc: mv,
             })
         }
 
         for mv in white_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::White,
                 loc: mv,
             })
@@ -983,7 +983,7 @@ mod tests {
 
         for group in &black_groups {
             for mv in group {
-                board.play_if_move_is_valid(&Move {
+                board.play(&Move {
                     player: Player::Black,
                     loc: *mv,
                 });
@@ -992,7 +992,7 @@ mod tests {
 
         for (group_index, white_moves) in white_groups.iter().enumerate() {
             for (i, mv) in white_moves.iter().enumerate() {
-                board.play_if_move_is_valid(&Move {
+                board.play(&Move {
                     player: Player::White,
                     loc: *mv,
                 });
@@ -1029,7 +1029,7 @@ mod tests {
 
             if board.move_is_valid(&current_move) {
                 test_move_history.push(current_move.clone());
-                board.play_if_move_is_valid(&current_move);
+                board.play(&current_move);
                 current_move.player = current_move.player.opponent();
                 moves_left -= 1;
             }
@@ -1054,7 +1054,7 @@ mod tests {
 
             if board.move_is_valid(&current_move) {
                 assert_eq!(board.get(current_move.loc), Color::Empty);
-                board.play_if_move_is_valid(&current_move);
+                board.play(&current_move);
                 assert_ne!(board.get(current_move.loc), Color::Empty);
                 current_move.player = current_move.player.opponent();
 
@@ -1108,7 +1108,7 @@ mod tests {
         ];
 
         for mv in moves {
-            board.play_if_move_is_valid(&mv);
+            board.play(&mv);
         }
 
         board = board.undo();
@@ -1146,10 +1146,10 @@ mod tests {
         ];
 
         for mv in moves {
-            board.play_if_move_is_valid(&mv);
+            board.play(&mv);
         }
 
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::White,
             loc: Loc { row: 2, col: 1 },
         });
@@ -1157,19 +1157,19 @@ mod tests {
         assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
         assert!(board.get(Loc { row: 1, col: 1 }) == Color::Black);
 
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::White,
             loc: Loc { row: 4, col: 3 },
         });
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::Black,
             loc: Loc { row: 3, col: 3 },
         });
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::White,
             loc: Loc { row: 2, col: 1 },
         });
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::Black,
             loc: Loc { row: 1, col: 1 },
         });
@@ -1177,15 +1177,15 @@ mod tests {
         assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
         assert!(board.get(Loc { row: 2, col: 1 }) == Color::White);
 
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::Black,
             loc: Loc { row: 2, col: 3 },
         });
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::White,
             loc: Loc { row: 4, col: 2 },
         });
-        board.play_if_move_is_valid(&Move {
+        board.play(&Move {
             player: Player::Black,
             loc: Loc { row: 1, col: 1 },
         });
@@ -1223,14 +1223,14 @@ mod tests {
         ];
 
         for mv in black_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::Black,
                 loc: mv,
             })
         }
 
         for mv in white_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::White,
                 loc: mv,
             })
@@ -1310,14 +1310,14 @@ mod tests {
         ];
 
         for mv in black_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::Black,
                 loc: mv,
             })
         }
 
         for mv in white_groups {
-            board.play_if_move_is_valid(&Move {
+            board.play(&Move {
                 player: Player::White,
                 loc: mv,
             })
