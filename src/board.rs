@@ -47,6 +47,7 @@ impl GameResult {
     }
 }
 
+// TODO: move closer to the enum
 impl Player {
     fn to_color(&self) -> Color {
         match self {
@@ -98,6 +99,9 @@ impl Loc {
         }
     }
 
+    // TODO: return all 4 neighbours, use in loops
+    //fn all_4nbr(self) -> Vec<Self> 
+    
     pub fn from_string(s: &str) -> Option<Self> {
         if !s.contains(",") {
             return None;
@@ -125,8 +129,10 @@ impl Loc {
         upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
 
-    fn get_all(r: usize, c: usize) -> Vec<Loc> {
+    // TODO: introduce struct BoardSize(usize, usize) and store it in board and pass here.
+    fn get_all_on_board(r: usize, c: usize) -> Vec<Loc> {
         let mut all_loc: Vec<Loc> = vec![];
+        // TODO: bug: you don't want to iterate over sentinels
         for row in 0..r {
             for col in 0..c {
                 all_loc.push(Loc { row, col })
@@ -154,11 +160,12 @@ impl Move {
     pub fn pass(self) -> Self {
         Move {
             player: self.player,
-            loc: Loc { row: 99, col: 99 },
+            loc: Loc { row: 99, col: 99 }, // TODO: if you happen to change the representation of pass to 98 98, this would be a bug. Please remember to reuse higher abstractions.
         }
     }
 
     pub fn is_pass(&self) -> bool {
+        // self.loc == Loc::pass()
         match self.loc {
             Loc { row: 99, col: 99 } => true,
             _ => false,
@@ -177,6 +184,7 @@ pub struct Board {
 }
 
 impl Board {
+    // TODO use BoardSize
     pub fn new(rows: usize, cols: usize, komi: f32) -> Self {
         // Initializing an empty board
         let mut board = Board {
@@ -188,6 +196,7 @@ impl Board {
             white_captures: 0,
         };
         // Setting up sentinels in rows
+        // TODO a better algo would be to set sentinels everywhere and then iterate over Loc::all_on_board()
         for i in 0..cols {
             board.fields[0][i] = Color::Invalid;
             board.fields[rows - 1][i] = Color::Invalid;
@@ -225,6 +234,7 @@ impl Board {
     }
 
     pub fn to_string(&self) -> String {
+        // TODO: add standard coordinates on sides.
         let mut board_string = String::new();
         for row in &self.fields {
             for field in row {
@@ -419,6 +429,7 @@ impl Board {
     }
 
     #[allow(dead_code)]
+    // TODO return info whether there was a success and use it in main loop
     pub fn play(&mut self, mv: &Move) {
         if self.move_is_valid(mv) {
             self.unsafe_play(mv);
@@ -496,7 +507,9 @@ impl Board {
     pub fn last_two_moves_are_pass(&self) -> bool {
         if self.game_history.len() > 1 {
             let last_two_moves = &self.game_history[self.game_history.len() - 2..];
-            return last_two_moves[0].loc == last_two_moves[1].loc;
+            return last_two_moves[0].loc == last_two_moves[1].loc; 
+            // TODO this is close to incorrect and very unreadable
+            // 
         }
         false
     }
