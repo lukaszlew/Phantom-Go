@@ -13,11 +13,10 @@ fn main() {
         );
         let player_input = board::take_player_input();
 
-        // TODO: This match is too long
         match player_input.as_str() {
             "q" => {
                 println!("\nQuit game!\n");
-                return;
+                break
             }
             "p" => board.play(&Move {
                 player: board.get_current_player(),
@@ -33,11 +32,9 @@ fn main() {
                 None => {
                     println!("\nInvalid move :c\nT R Y  A G A I N !\n");
                 }
-                Some(valid_loc_string) => {
-                    board.play(&Move {
-                        player: board.get_current_player(),
-                        loc: valid_loc_string,
-                    });
+                Some(loc) => {
+                    let player = board.get_current_player()
+                    board = board.play(Move { player, loc });
                 }
             },
         }
